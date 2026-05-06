@@ -26,13 +26,13 @@ function DashboardPage() {
   const billable = (s: string) => s === "confirmed" || s === "completed";
 
   const todayAppts = appointments.filter((a) => a.date === todayStr);
-  const todayRevenue = todayAppts.filter((a) => billable(a.status)).reduce((s, a) => s + a.value * 100, 0);
+  const todayRevenue = todayAppts.filter((a) => billable(a.status)).reduce((s, a) => s + a.serviceValue * 100, 0);
 
   const monthAppts = appointments.filter((a) => new Date(a.date) >= monthStart && billable(a.status));
-  const monthRevenue = monthAppts.reduce((s, a) => s + a.value * 100, 0);
+  const monthRevenue = monthAppts.reduce((s, a) => s + a.serviceValue * 100, 0);
 
   const completed = appointments.filter((a) => a.status === "completed");
-  const totalRevenue = completed.reduce((s, a) => s + a.value * 100, 0);
+  const totalRevenue = completed.reduce((s, a) => s + a.serviceValue * 100, 0);
   const ticket = completed.length ? totalRevenue / completed.length : 0;
 
   const weekData = useMemo(() => {
@@ -55,7 +55,7 @@ function DashboardPage() {
       const key = isoDay(d);
       const total = appointments
         .filter((a) => a.date === key && billable(a.status))
-        .reduce((s, a) => s + a.value, 0);
+        .reduce((s, a) => s + a.serviceValue, 0);
       out.push({ day: `${d.getDate()}/${d.getMonth() + 1}`, total });
     }
     return out;

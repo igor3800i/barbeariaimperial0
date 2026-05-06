@@ -18,7 +18,7 @@ function FinancialPage() {
     appointments.filter((a) => billable(a.status)).forEach((a) => {
       const cur = map.get(a.date) ?? { count: 0, total: 0 };
       cur.count += 1;
-      cur.total += a.value;
+      cur.total += a.serviceValue;
       map.set(a.date, cur);
     });
     return [...map.entries()].sort((a, b) => b[0].localeCompare(a[0]));
