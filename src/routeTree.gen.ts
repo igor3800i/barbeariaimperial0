@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as BarberServicesRouteImport } from './routes/barber.services'
 import { Route as BarberProductsRouteImport } from './routes/barber.products'
 import { Route as BarberLoginRouteImport } from './routes/barber.login'
+import { Route as BarberFinancialRouteImport } from './routes/barber.financial'
 import { Route as BarberDashboardRouteImport } from './routes/barber.dashboard'
 import { Route as BarberAppointmentsRouteImport } from './routes/barber.appointments'
 
@@ -60,6 +61,11 @@ const BarberLoginRoute = BarberLoginRouteImport.update({
   path: '/barber/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BarberFinancialRoute = BarberFinancialRouteImport.update({
+  id: '/barber/financial',
+  path: '/barber/financial',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BarberDashboardRoute = BarberDashboardRouteImport.update({
   id: '/barber/dashboard',
   path: '/barber/dashboard',
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/servicos': typeof ServicosRoute
   '/barber/appointments': typeof BarberAppointmentsRoute
   '/barber/dashboard': typeof BarberDashboardRoute
+  '/barber/financial': typeof BarberFinancialRoute
   '/barber/login': typeof BarberLoginRoute
   '/barber/products': typeof BarberProductsRoute
   '/barber/services': typeof BarberServicesRoute
@@ -91,6 +98,7 @@ export interface FileRoutesByTo {
   '/servicos': typeof ServicosRoute
   '/barber/appointments': typeof BarberAppointmentsRoute
   '/barber/dashboard': typeof BarberDashboardRoute
+  '/barber/financial': typeof BarberFinancialRoute
   '/barber/login': typeof BarberLoginRoute
   '/barber/products': typeof BarberProductsRoute
   '/barber/services': typeof BarberServicesRoute
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   '/servicos': typeof ServicosRoute
   '/barber/appointments': typeof BarberAppointmentsRoute
   '/barber/dashboard': typeof BarberDashboardRoute
+  '/barber/financial': typeof BarberFinancialRoute
   '/barber/login': typeof BarberLoginRoute
   '/barber/products': typeof BarberProductsRoute
   '/barber/services': typeof BarberServicesRoute
@@ -118,6 +127,7 @@ export interface FileRouteTypes {
     | '/servicos'
     | '/barber/appointments'
     | '/barber/dashboard'
+    | '/barber/financial'
     | '/barber/login'
     | '/barber/products'
     | '/barber/services'
@@ -130,6 +140,7 @@ export interface FileRouteTypes {
     | '/servicos'
     | '/barber/appointments'
     | '/barber/dashboard'
+    | '/barber/financial'
     | '/barber/login'
     | '/barber/products'
     | '/barber/services'
@@ -142,6 +153,7 @@ export interface FileRouteTypes {
     | '/servicos'
     | '/barber/appointments'
     | '/barber/dashboard'
+    | '/barber/financial'
     | '/barber/login'
     | '/barber/products'
     | '/barber/services'
@@ -155,6 +167,7 @@ export interface RootRouteChildren {
   ServicosRoute: typeof ServicosRoute
   BarberAppointmentsRoute: typeof BarberAppointmentsRoute
   BarberDashboardRoute: typeof BarberDashboardRoute
+  BarberFinancialRoute: typeof BarberFinancialRoute
   BarberLoginRoute: typeof BarberLoginRoute
   BarberProductsRoute: typeof BarberProductsRoute
   BarberServicesRoute: typeof BarberServicesRoute
@@ -218,6 +231,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarberLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/barber/financial': {
+      id: '/barber/financial'
+      path: '/barber/financial'
+      fullPath: '/barber/financial'
+      preLoaderRoute: typeof BarberFinancialRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/barber/dashboard': {
       id: '/barber/dashboard'
       path: '/barber/dashboard'
@@ -243,6 +263,7 @@ const rootRouteChildren: RootRouteChildren = {
   ServicosRoute: ServicosRoute,
   BarberAppointmentsRoute: BarberAppointmentsRoute,
   BarberDashboardRoute: BarberDashboardRoute,
+  BarberFinancialRoute: BarberFinancialRoute,
   BarberLoginRoute: BarberLoginRoute,
   BarberProductsRoute: BarberProductsRoute,
   BarberServicesRoute: BarberServicesRoute,
