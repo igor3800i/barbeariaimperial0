@@ -117,15 +117,24 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      booked_slots: {
+        Row: {
+          appointment_date: string | null
+          appointment_time: string | null
+        }
+        Insert: {
+          appointment_date?: string | null
+          appointment_time?: string | null
+        }
+        Update: {
+          appointment_date?: string | null
+          appointment_time?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      get_booked_slots: {
-        Args: { p_date: string }
-        Returns: {
-          appointment_time: string
-        }[]
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
