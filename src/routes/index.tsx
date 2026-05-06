@@ -25,8 +25,7 @@ function Index() {
         />
         <div className="absolute inset-0 -z-10" style={{ background: "var(--gradient-hero)" }} />
         <div className="mx-auto flex min-h-[80vh] max-w-6xl flex-col items-start justify-center px-4 py-24">
-          <span className="rounded-full border border-primary/40 bg-background/40 px-3 py-1 text-xs uppercase tracking-widest text-primary">Desde 2010</span>
-          <h1 className="mt-4 text-5xl leading-none text-foreground md:text-7xl">
+          <h1 className="text-5xl leading-none text-foreground md:text-7xl">
             Estilo afiado.<br />Precisão na <span className="text-primary">navalha.</span>
           </h1>
           <p className="mt-5 max-w-xl text-base text-muted-foreground md:text-lg">
