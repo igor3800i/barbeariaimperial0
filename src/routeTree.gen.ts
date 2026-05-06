@@ -14,6 +14,12 @@ import { Route as ProdutosRouteImport } from './routes/produtos'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as AgendarRouteImport } from './routes/agendar'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BarberServicesRouteImport } from './routes/barber.services'
+import { Route as BarberProductsRouteImport } from './routes/barber.products'
+import { Route as BarberLoginRouteImport } from './routes/barber.login'
+import { Route as BarberFinancialRouteImport } from './routes/barber.financial'
+import { Route as BarberDashboardRouteImport } from './routes/barber.dashboard'
+import { Route as BarberAppointmentsRouteImport } from './routes/barber.appointments'
 
 const ServicosRoute = ServicosRouteImport.update({
   id: '/servicos',
@@ -40,6 +46,36 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BarberServicesRoute = BarberServicesRouteImport.update({
+  id: '/barber/services',
+  path: '/barber/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BarberProductsRoute = BarberProductsRouteImport.update({
+  id: '/barber/products',
+  path: '/barber/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BarberLoginRoute = BarberLoginRouteImport.update({
+  id: '/barber/login',
+  path: '/barber/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BarberFinancialRoute = BarberFinancialRouteImport.update({
+  id: '/barber/financial',
+  path: '/barber/financial',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BarberDashboardRoute = BarberDashboardRouteImport.update({
+  id: '/barber/dashboard',
+  path: '/barber/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BarberAppointmentsRoute = BarberAppointmentsRouteImport.update({
+  id: '/barber/appointments',
+  path: '/barber/appointments',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,6 +83,12 @@ export interface FileRoutesByFullPath {
   '/contato': typeof ContatoRoute
   '/produtos': typeof ProdutosRoute
   '/servicos': typeof ServicosRoute
+  '/barber/appointments': typeof BarberAppointmentsRoute
+  '/barber/dashboard': typeof BarberDashboardRoute
+  '/barber/financial': typeof BarberFinancialRoute
+  '/barber/login': typeof BarberLoginRoute
+  '/barber/products': typeof BarberProductsRoute
+  '/barber/services': typeof BarberServicesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +96,12 @@ export interface FileRoutesByTo {
   '/contato': typeof ContatoRoute
   '/produtos': typeof ProdutosRoute
   '/servicos': typeof ServicosRoute
+  '/barber/appointments': typeof BarberAppointmentsRoute
+  '/barber/dashboard': typeof BarberDashboardRoute
+  '/barber/financial': typeof BarberFinancialRoute
+  '/barber/login': typeof BarberLoginRoute
+  '/barber/products': typeof BarberProductsRoute
+  '/barber/services': typeof BarberServicesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +110,53 @@ export interface FileRoutesById {
   '/contato': typeof ContatoRoute
   '/produtos': typeof ProdutosRoute
   '/servicos': typeof ServicosRoute
+  '/barber/appointments': typeof BarberAppointmentsRoute
+  '/barber/dashboard': typeof BarberDashboardRoute
+  '/barber/financial': typeof BarberFinancialRoute
+  '/barber/login': typeof BarberLoginRoute
+  '/barber/products': typeof BarberProductsRoute
+  '/barber/services': typeof BarberServicesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/agendar' | '/contato' | '/produtos' | '/servicos'
+  fullPaths:
+    | '/'
+    | '/agendar'
+    | '/contato'
+    | '/produtos'
+    | '/servicos'
+    | '/barber/appointments'
+    | '/barber/dashboard'
+    | '/barber/financial'
+    | '/barber/login'
+    | '/barber/products'
+    | '/barber/services'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/agendar' | '/contato' | '/produtos' | '/servicos'
-  id: '__root__' | '/' | '/agendar' | '/contato' | '/produtos' | '/servicos'
+  to:
+    | '/'
+    | '/agendar'
+    | '/contato'
+    | '/produtos'
+    | '/servicos'
+    | '/barber/appointments'
+    | '/barber/dashboard'
+    | '/barber/financial'
+    | '/barber/login'
+    | '/barber/products'
+    | '/barber/services'
+  id:
+    | '__root__'
+    | '/'
+    | '/agendar'
+    | '/contato'
+    | '/produtos'
+    | '/servicos'
+    | '/barber/appointments'
+    | '/barber/dashboard'
+    | '/barber/financial'
+    | '/barber/login'
+    | '/barber/products'
+    | '/barber/services'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,6 +165,12 @@ export interface RootRouteChildren {
   ContatoRoute: typeof ContatoRoute
   ProdutosRoute: typeof ProdutosRoute
   ServicosRoute: typeof ServicosRoute
+  BarberAppointmentsRoute: typeof BarberAppointmentsRoute
+  BarberDashboardRoute: typeof BarberDashboardRoute
+  BarberFinancialRoute: typeof BarberFinancialRoute
+  BarberLoginRoute: typeof BarberLoginRoute
+  BarberProductsRoute: typeof BarberProductsRoute
+  BarberServicesRoute: typeof BarberServicesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -116,6 +210,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/barber/services': {
+      id: '/barber/services'
+      path: '/barber/services'
+      fullPath: '/barber/services'
+      preLoaderRoute: typeof BarberServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/barber/products': {
+      id: '/barber/products'
+      path: '/barber/products'
+      fullPath: '/barber/products'
+      preLoaderRoute: typeof BarberProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/barber/login': {
+      id: '/barber/login'
+      path: '/barber/login'
+      fullPath: '/barber/login'
+      preLoaderRoute: typeof BarberLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/barber/financial': {
+      id: '/barber/financial'
+      path: '/barber/financial'
+      fullPath: '/barber/financial'
+      preLoaderRoute: typeof BarberFinancialRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/barber/dashboard': {
+      id: '/barber/dashboard'
+      path: '/barber/dashboard'
+      fullPath: '/barber/dashboard'
+      preLoaderRoute: typeof BarberDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/barber/appointments': {
+      id: '/barber/appointments'
+      path: '/barber/appointments'
+      fullPath: '/barber/appointments'
+      preLoaderRoute: typeof BarberAppointmentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -125,6 +261,12 @@ const rootRouteChildren: RootRouteChildren = {
   ContatoRoute: ContatoRoute,
   ProdutosRoute: ProdutosRoute,
   ServicosRoute: ServicosRoute,
+  BarberAppointmentsRoute: BarberAppointmentsRoute,
+  BarberDashboardRoute: BarberDashboardRoute,
+  BarberFinancialRoute: BarberFinancialRoute,
+  BarberLoginRoute: BarberLoginRoute,
+  BarberProductsRoute: BarberProductsRoute,
+  BarberServicesRoute: BarberServicesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

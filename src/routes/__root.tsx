@@ -4,11 +4,14 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
 import { Scissors, MapPin, Phone, Instagram } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider } from "@/lib/auth-context";
+import { BarberStoreProvider } from "@/lib/barber-store";
 
 import appCss from "../styles.css?url";
 
@@ -68,7 +71,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" },
     ],
   }),
   shellComponent: RootShell,
@@ -149,14 +152,24 @@ function Footer() {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isBarber = pathname.startsWith("/barber");
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="flex min-h-screen flex-col">
-        <Header />
-        <main className="flex-1"><Outlet /></main>
-        <Footer />
-      </div>
-      <Toaster richColors position="top-center" />
+      <AuthProvider>
+        <BarberStoreProvider>
+          {isBarber ? (
+            <Outlet />
+          ) : (
+            <div className="flex min-h-screen flex-col">
+              <Header />
+              <main className="flex-1"><Outlet /></main>
+              <Footer />
+            </div>
+          )}
+          <Toaster richColors position="top-center" />
+        </BarberStoreProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
