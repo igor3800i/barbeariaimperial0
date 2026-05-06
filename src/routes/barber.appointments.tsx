@@ -47,7 +47,11 @@ function AppointmentsPage() {
         return true;
       })
       .filter((a) => status === "todos" ? true : a.status === status)
-      .filter((a) => q.trim() === "" ? true : a.client.toLowerCase().includes(q.toLowerCase()))
+      .filter((a) => {
+        if (q.trim() === "") return true;
+        const needle = q.toLowerCase();
+        return a.clientName.toLowerCase().includes(needle) || a.clientPhone.includes(needle);
+      })
       .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
   }, [appointments, period, status, q]);
 
@@ -91,12 +95,12 @@ function AppointmentsPage() {
         {filtered.map((a) => (
           <div key={a.id} className="flex items-center gap-3 rounded-xl border border-border bg-card p-3">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/15 font-bold text-primary">
-              {a.client[0]}
+              {a.clientName[0]}
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-baseline justify-between gap-2">
-                <p className="truncate font-semibold text-foreground">{a.client}</p>
-                <p className="shrink-0 text-sm font-bold text-primary">{formatBRL(a.value * 100)}</p>
+                <p className="truncate font-semibold text-foreground">{a.clientName}</p>
+                <p className="shrink-0 text-sm font-bold text-primary">{formatBRL(a.serviceValue * 100)}</p>
               </div>
               <p className="truncate text-xs text-muted-foreground">{a.service}</p>
               <div className="mt-1 flex items-center gap-2">

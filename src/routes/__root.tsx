@@ -11,7 +11,10 @@ import {
 import { Scissors, MapPin, Phone, Instagram } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/auth-context";
+import { ClientAuthProvider, useClientAuth } from "@/lib/client-auth-context";
 import { BarberStoreProvider } from "@/lib/barber-store";
+import { useEffect } from "react";
+import { useNavigate } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
 
@@ -158,18 +161,34 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <BarberStoreProvider>
-          {isBarber ? (
-            <Outlet />
-          ) : (
-            <div className="flex min-h-screen flex-col">
-              <Header />
-              <main className="flex-1"><Outlet /></main>
-              <Footer />
-            </div>
-          )}
-          <Toaster richColors position="top-center" />
+          <ClientAuthProvider>
+            {isBarber ? (
+              <Outlet />
+            ) : pathname === "/cadastro" || pathname === "/login" ? (
+              <Outlet />
+            ) : (
+              <ClientGuard>
+                <div className="flex min-h-screen flex-col">
+                  <Header />
+                  <main className="flex-1"><Outlet /></main>
+                  <Footer />
+                </div>
+              </ClientGuard>
+            )}
+            <Toaster richColors position="top-center" />
+          </ClientAuthProvider>
         </BarberStoreProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
+}
+
+function ClientGuard({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useClientAuth();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!isAuthenticated) navigate({ to: "/cadastro" });
+  }, [isAuthenticated, navigate]);
+  if (!isAuthenticated) return null;
+  return <>{children}</>;
 }

@@ -11,7 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ServicosRouteImport } from './routes/servicos'
 import { Route as ProdutosRouteImport } from './routes/produtos'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as ContatoRouteImport } from './routes/contato'
+import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as AgendarRouteImport } from './routes/agendar'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BarberServicesRouteImport } from './routes/barber.services'
@@ -31,9 +33,19 @@ const ProdutosRoute = ProdutosRouteImport.update({
   path: '/produtos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContatoRoute = ContatoRouteImport.update({
   id: '/contato',
   path: '/contato',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CadastroRoute = CadastroRouteImport.update({
+  id: '/cadastro',
+  path: '/cadastro',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AgendarRoute = AgendarRouteImport.update({
@@ -80,7 +92,9 @@ const BarberAppointmentsRoute = BarberAppointmentsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/agendar': typeof AgendarRoute
+  '/cadastro': typeof CadastroRoute
   '/contato': typeof ContatoRoute
+  '/login': typeof LoginRoute
   '/produtos': typeof ProdutosRoute
   '/servicos': typeof ServicosRoute
   '/barber/appointments': typeof BarberAppointmentsRoute
@@ -93,7 +107,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/agendar': typeof AgendarRoute
+  '/cadastro': typeof CadastroRoute
   '/contato': typeof ContatoRoute
+  '/login': typeof LoginRoute
   '/produtos': typeof ProdutosRoute
   '/servicos': typeof ServicosRoute
   '/barber/appointments': typeof BarberAppointmentsRoute
@@ -107,7 +123,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/agendar': typeof AgendarRoute
+  '/cadastro': typeof CadastroRoute
   '/contato': typeof ContatoRoute
+  '/login': typeof LoginRoute
   '/produtos': typeof ProdutosRoute
   '/servicos': typeof ServicosRoute
   '/barber/appointments': typeof BarberAppointmentsRoute
@@ -122,7 +140,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/agendar'
+    | '/cadastro'
     | '/contato'
+    | '/login'
     | '/produtos'
     | '/servicos'
     | '/barber/appointments'
@@ -135,7 +155,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/agendar'
+    | '/cadastro'
     | '/contato'
+    | '/login'
     | '/produtos'
     | '/servicos'
     | '/barber/appointments'
@@ -148,7 +170,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/agendar'
+    | '/cadastro'
     | '/contato'
+    | '/login'
     | '/produtos'
     | '/servicos'
     | '/barber/appointments'
@@ -162,7 +186,9 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AgendarRoute: typeof AgendarRoute
+  CadastroRoute: typeof CadastroRoute
   ContatoRoute: typeof ContatoRoute
+  LoginRoute: typeof LoginRoute
   ProdutosRoute: typeof ProdutosRoute
   ServicosRoute: typeof ServicosRoute
   BarberAppointmentsRoute: typeof BarberAppointmentsRoute
@@ -189,11 +215,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProdutosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contato': {
       id: '/contato'
       path: '/contato'
       fullPath: '/contato'
       preLoaderRoute: typeof ContatoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cadastro': {
+      id: '/cadastro'
+      path: '/cadastro'
+      fullPath: '/cadastro'
+      preLoaderRoute: typeof CadastroRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/agendar': {
@@ -258,7 +298,9 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AgendarRoute: AgendarRoute,
+  CadastroRoute: CadastroRoute,
   ContatoRoute: ContatoRoute,
+  LoginRoute: LoginRoute,
   ProdutosRoute: ProdutosRoute,
   ServicosRoute: ServicosRoute,
   BarberAppointmentsRoute: BarberAppointmentsRoute,
