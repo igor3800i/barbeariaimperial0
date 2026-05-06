@@ -26,15 +26,8 @@ export const Route = createFileRoute("/agendar")({
   component: AgendarPage,
 });
 
-// 09:00 to 19:30 every 30 min
-const ALL_SLOTS = (() => {
-  const out: string[] = [];
-  for (let h = 9; h < 20; h++) {
-    out.push(`${String(h).padStart(2, "0")}:00`);
-    out.push(`${String(h).padStart(2, "0")}:30`);
-  }
-  return out;
-})();
+// 09:00 to 19:00 every 60 min
+const ALL_SLOTS = Array.from({ length: 11 }, (_, i) => `${String(9 + i).padStart(2, "0")}:00`);
 
 const NEXT_DAYS = Array.from({ length: 14 }, (_, i) => addDays(startOfDay(new Date()), i));
 
@@ -189,7 +182,7 @@ function AgendarPage() {
 
       {/* 3. Time */}
       <Step number={3} title="Escolha o horário">
-        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {availableSlots.map(({ slot, taken, past }) => {
             const disabled = taken || past;
             const selected = time === slot;
@@ -199,10 +192,10 @@ function AgendarPage() {
                 disabled={disabled}
                 onClick={() => setTime(slot)}
                 className={cn(
-                  "rounded-md border py-2 text-sm font-medium transition",
+                  "min-h-12 rounded-[var(--radius)] border font-semibold transition",
                   selected && "border-primary bg-primary text-primary-foreground",
                   !selected && !disabled && "border-border bg-card text-foreground hover:border-primary/50",
-                  disabled && "cursor-not-allowed border-border/40 bg-muted text-muted-foreground/50 line-through",
+                  disabled && "cursor-not-allowed border-transparent bg-muted text-muted-foreground opacity-60",
                 )}
               >
                 {slot}
