@@ -7,6 +7,8 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { Scissors, MapPin, Phone, Instagram } from "lucide-react";
+import { Toaster } from "@/components/ui/sonner";
 
 import appCss from "../styles.css?url";
 
@@ -14,17 +16,17 @@ function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
+        <h1 className="text-7xl font-bold text-primary">404</h1>
+        <h2 className="mt-4 text-xl font-semibold text-foreground">Página não encontrada</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
+          A página que você procura não existe.
         </p>
         <div className="mt-6">
           <Link
             to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex items-center justify-center rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90"
           >
-            Go home
+            Voltar ao início
           </Link>
         </div>
       </div>
@@ -35,33 +37,17 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
-        </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <button
-            onClick={() => {
-              router.invalidate();
-              reset();
-            }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Try again
-          </button>
-          <a
-            href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
-          >
-            Go home
-          </a>
-        </div>
+        <h1 className="text-xl font-semibold text-foreground">Algo deu errado</h1>
+        <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+        <button
+          onClick={() => { router.invalidate(); reset(); }}
+          className="mt-6 inline-flex items-center justify-center rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground"
+        >
+          Tentar novamente
+        </button>
       </div>
     </div>
   );
@@ -72,20 +58,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Navalha & Cia — Barbearia Premium" },
+      { name: "description", content: "Barbearia premium com agendamento online rápido. Corte, barba e combo em poucos cliques." },
+      { property: "og:title", content: "Navalha & Cia — Barbearia Premium" },
+      { property: "og:description", content: "Agende seu corte ou barba online em segundos." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
+      { rel: "stylesheet", href: appCss },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" },
     ],
   }),
   shellComponent: RootShell,
@@ -96,7 +79,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
       <head>
         <HeadContent />
       </head>
@@ -108,12 +91,72 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+function Header() {
+  const linkClass = "text-sm font-medium text-muted-foreground hover:text-primary transition-colors";
+  return (
+    <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
+        <Link to="/" className="flex items-center gap-2">
+          <Scissors className="h-5 w-5 text-primary" />
+          <span className="font-display text-xl tracking-widest text-foreground">Navalha & Cia</span>
+        </Link>
+        <nav className="hidden items-center gap-6 md:flex">
+          <Link to="/" className={linkClass} activeOptions={{ exact: true }} activeProps={{ className: "text-sm font-medium text-primary" }}>Início</Link>
+          <Link to="/servicos" className={linkClass} activeProps={{ className: "text-sm font-medium text-primary" }}>Serviços</Link>
+          <Link to="/produtos" className={linkClass} activeProps={{ className: "text-sm font-medium text-primary" }}>Produtos</Link>
+          <Link to="/contato" className={linkClass} activeProps={{ className: "text-sm font-medium text-primary" }}>Contato</Link>
+        </nav>
+        <Link
+          to="/agendar"
+          className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-md transition hover:opacity-90"
+        >
+          Agendar
+        </Link>
+      </div>
+    </header>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="border-t border-border bg-card">
+      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 md:grid-cols-3">
+        <div>
+          <div className="flex items-center gap-2">
+            <Scissors className="h-5 w-5 text-primary" />
+            <span className="font-display text-xl tracking-widest">Navalha & Cia</span>
+          </div>
+          <p className="mt-3 text-sm text-muted-foreground">Tradição, estilo e precisão. Sua barbearia de confiança.</p>
+        </div>
+        <div className="text-sm">
+          <h3 className="font-display text-base text-primary">Horário</h3>
+          <p className="mt-2 text-muted-foreground">Ter – Sáb: 09h às 20h</p>
+          <p className="text-muted-foreground">Domingo e Segunda: Fechado</p>
+        </div>
+        <div className="space-y-2 text-sm text-muted-foreground">
+          <h3 className="font-display text-base text-primary">Contato</h3>
+          <p className="flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> Rua das Tesouras, 123 — Centro</p>
+          <p className="flex items-center gap-2"><Phone className="h-4 w-4 text-primary" /> (11) 99999-0000</p>
+          <p className="flex items-center gap-2"><Instagram className="h-4 w-4 text-primary" /> @navalhaecia</p>
+        </div>
+      </div>
+      <div className="border-t border-border py-4 text-center text-xs text-muted-foreground">
+        © {new Date().getFullYear()} Navalha & Cia. Todos os direitos reservados.
+      </div>
+    </footer>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <div className="flex min-h-screen flex-col">
+        <Header />
+        <main className="flex-1"><Outlet /></main>
+        <Footer />
+      </div>
+      <Toaster richColors position="top-center" />
     </QueryClientProvider>
   );
 }
