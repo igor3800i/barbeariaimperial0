@@ -2,12 +2,14 @@ export type AppointmentStatus = "confirmed" | "pending" | "completed" | "cancell
 
 export type MockAppointment = {
   id: number;
-  client: string;
+  clientName: string;
+  clientPhone: string;
   service: string;
   time: string;
   date: string; // ISO yyyy-mm-dd
-  value: number;
+  serviceValue: number;
   status: AppointmentStatus;
+  createdAt?: string;
 };
 
 const today = new Date();
@@ -19,19 +21,19 @@ const dayOffset = (n: number) => {
 };
 
 export const mockAppointments: MockAppointment[] = [
-  { id: 1, client: "Carlos Silva", service: "Corte de Cabelo", time: "09:00", date: dayOffset(0), value: 30, status: "confirmed" },
-  { id: 2, client: "Rafael Souza", service: "Barba", time: "10:00", date: dayOffset(0), value: 15, status: "pending" },
-  { id: 3, client: "Bruno Lima", service: "Corte + Barba", time: "11:00", date: dayOffset(0), value: 45, status: "confirmed" },
-  { id: 4, client: "Lucas Martins", service: "Cuidado de Pele", time: "14:00", date: dayOffset(0), value: 10, status: "completed" },
-  { id: 5, client: "Felipe Costa", service: "Corte de Cabelo", time: "16:00", date: dayOffset(0), value: 30, status: "confirmed" },
-  { id: 6, client: "Diego Ramos", service: "Sobrancelha", time: "09:30", date: dayOffset(-1), value: 10, status: "completed" },
-  { id: 7, client: "Pedro Henrique", service: "Corte + Barba", time: "15:00", date: dayOffset(-1), value: 45, status: "completed" },
-  { id: 8, client: "Marcos Vinícius", service: "Corte com Luzes", time: "10:00", date: dayOffset(-2), value: 125, status: "completed" },
-  { id: 9, client: "André Rocha", service: "Acabamento", time: "11:30", date: dayOffset(-3), value: 10, status: "completed" },
-  { id: 10, client: "Tiago Nunes", service: "Corte de Cabelo", time: "16:30", date: dayOffset(-4), value: 30, status: "completed" },
-  { id: 11, client: "Vinicius Alves", service: "Corte com Alisamento", time: "13:00", date: dayOffset(-5), value: 85, status: "completed" },
-  { id: 12, client: "João Pedro", service: "Barba", time: "09:00", date: dayOffset(-6), value: 15, status: "completed" },
-  { id: 13, client: "Eduardo Lima", service: "Corte + Sobrancelha", time: "14:30", date: dayOffset(2), value: 40, status: "confirmed" },
+  { id: 1, clientName: "Carlos Silva", clientPhone: "(11) 98765-4321", service: "Corte de Cabelo", time: "09:00", date: dayOffset(0), serviceValue: 45, status: "confirmed" },
+  { id: 2, clientName: "Rafael Souza", clientPhone: "(11) 97654-3210", service: "Barba", time: "10:00", date: dayOffset(0), serviceValue: 35, status: "pending" },
+  { id: 3, clientName: "Bruno Lima", clientPhone: "(11) 96543-2109", service: "Corte + Barba", time: "11:00", date: dayOffset(0), serviceValue: 70, status: "confirmed" },
+  { id: 4, clientName: "Lucas Martins", clientPhone: "(11) 95432-1098", service: "Hidratação", time: "14:00", date: dayOffset(0), serviceValue: 55, status: "completed" },
+  { id: 5, clientName: "Felipe Costa", clientPhone: "(11) 94321-0987", service: "Corte de Cabelo", time: "16:00", date: dayOffset(0), serviceValue: 45, status: "confirmed" },
+  { id: 6, clientName: "Diego Ramos", clientPhone: "(11) 93210-9876", service: "Sobrancelha", time: "09:30", date: dayOffset(-1), serviceValue: 10, status: "completed" },
+  { id: 7, clientName: "Pedro Henrique", clientPhone: "(11) 92109-8765", service: "Corte + Barba", time: "15:00", date: dayOffset(-1), serviceValue: 70, status: "completed" },
+  { id: 8, clientName: "Marcos Vinícius", clientPhone: "(11) 91098-7654", service: "Corte com Luzes", time: "10:00", date: dayOffset(-2), serviceValue: 125, status: "completed" },
+  { id: 9, clientName: "André Rocha", clientPhone: "(11) 99087-6543", service: "Acabamento", time: "11:30", date: dayOffset(-3), serviceValue: 10, status: "completed" },
+  { id: 10, clientName: "Tiago Nunes", clientPhone: "(11) 98076-5432", service: "Corte de Cabelo", time: "16:30", date: dayOffset(-4), serviceValue: 45, status: "completed" },
+  { id: 11, clientName: "Vinicius Alves", clientPhone: "(11) 97065-4321", service: "Corte com Alisamento", time: "13:00", date: dayOffset(-5), serviceValue: 85, status: "completed" },
+  { id: 12, clientName: "João Pedro", clientPhone: "(11) 96054-3210", service: "Barba", time: "09:00", date: dayOffset(-6), serviceValue: 35, status: "completed" },
+  { id: 13, clientName: "Eduardo Lima", clientPhone: "(11) 95043-2109", service: "Corte + Sobrancelha", time: "14:30", date: dayOffset(2), serviceValue: 40, status: "confirmed" },
 ];
 
 export type MockProduct = {
