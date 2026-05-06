@@ -4,17 +4,11 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
-  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
 import { Scissors, MapPin, Phone, Instagram } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
-import { AuthProvider } from "@/lib/auth-context";
-import { ClientAuthProvider, useClientAuth } from "@/lib/client-auth-context";
-import { BarberStoreProvider } from "@/lib/barber-store";
-import { useEffect } from "react";
-import { useNavigate } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
 
@@ -64,17 +58,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Navalha & Cia — Barbearia Premium" },
+      { title: "Barbearia Imperial" },
       { name: "description", content: "Barbearia premium com agendamento online rápido. Corte, barba e combo em poucos cliques." },
-      { property: "og:title", content: "Navalha & Cia — Barbearia Premium" },
-      { property: "og:description", content: "Agende seu corte ou barba online em segundos." },
+      { property: "og:title", content: "Barbearia Imperial" },
+      { property: "og:description", content: "Barbearia premium com agendamento online rápido. Corte, barba e combo em poucos cliques." },
       { property: "og:type", content: "website" },
+      { name: "twitter:title", content: "Barbearia Imperial" },
+      { name: "twitter:description", content: "Barbearia premium com agendamento online rápido. Corte, barba e combo em poucos cliques." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/ffc7fd94-3812-45b5-930e-e3245b3e33f8/id-preview-b5328ed6--49578355-fa65-40aa-875e-972602ae726b.lovable.app-1778111172721.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/ffc7fd94-3812-45b5-930e-e3245b3e33f8/id-preview-b5328ed6--49578355-fa65-40aa-875e-972602ae726b.lovable.app-1778111172721.png" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" },
     ],
   }),
   shellComponent: RootShell,
@@ -155,40 +154,14 @@ function Footer() {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isBarber = pathname.startsWith("/barber");
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <BarberStoreProvider>
-          <ClientAuthProvider>
-            {isBarber ? (
-              <Outlet />
-            ) : pathname === "/cadastro" || pathname === "/login" ? (
-              <Outlet />
-            ) : (
-              <ClientGuard>
-                <div className="flex min-h-screen flex-col">
-                  <Header />
-                  <main className="flex-1"><Outlet /></main>
-                  <Footer />
-                </div>
-              </ClientGuard>
-            )}
-            <Toaster richColors position="top-center" />
-          </ClientAuthProvider>
-        </BarberStoreProvider>
-      </AuthProvider>
+      <div className="flex min-h-screen flex-col">
+        <Header />
+        <main className="flex-1"><Outlet /></main>
+        <Footer />
+      </div>
+      <Toaster richColors position="top-center" />
     </QueryClientProvider>
   );
-}
-
-function ClientGuard({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useClientAuth();
-  const navigate = useNavigate();
-  useEffect(() => {
-    if (!isAuthenticated) navigate({ to: "/cadastro" });
-  }, [isAuthenticated, navigate]);
-  if (!isAuthenticated) return null;
-  return <>{children}</>;
 }
