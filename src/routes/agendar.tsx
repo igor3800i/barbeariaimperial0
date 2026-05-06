@@ -9,9 +9,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBRL } from "@/lib/format";
 import { useBarberStore } from "@/lib/barber-store";
+import { useClientAuth } from "@/lib/client-auth-context";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
 const searchSchema = z.object({ service: z.string().optional() });
@@ -36,15 +35,14 @@ function AgendarPage() {
   const navigate = useNavigate();
   const search = Route.useSearch();
   const qc = useQueryClient();
+  const { client } = useClientAuth();
 
   const [serviceId, setServiceId] = useState<string | undefined>(search.service);
   const [date, setDate] = useState<Date>(NEXT_DAYS[0]);
   const [time, setTime] = useState<string | undefined>();
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
   const [confirmed, setConfirmed] = useState<{ name: string; date: Date; time: string; service: string } | null>(null);
 
-  const { services: storeServices } = useBarberStore();
+  const { services: storeServices, appointments, setAppointments } = useBarberStore();
   const services = useMemo(
     () => storeServices.map((s) => ({
       id: String(s.id),
@@ -83,20 +81,36 @@ function AgendarPage() {
 
   const mutation = useMutation({
     mutationFn: async () => {
+      if (!client) throw new Error("Faça login para agendar");
+      if (!serviceId || !time || !selectedService) throw new Error("Selecione serviço e horário");
       const schema = z.object({
         serviceId: z.string().min(1),
-        name: z.string().trim().min(2, "Nome muito curto").max(80),
-        phone: z.string().trim().min(8, "Telefone inválido").max(20),
         date: z.string(),
         time: z.string(),
       });
-      const payload = schema.parse({ serviceId, name, phone, date: dateStr, time });
+      const payload = schema.parse({ serviceId, date: dateStr, time });
+      const fullName = `${client.name} ${client.surname}`.trim();
+      // persist to local store so barber sees it
+      setAppointments([
+        ...appointments,
+        {
+          id: Date.now(),
+          clientName: fullName,
+          clientPhone: client.phone,
+          service: selectedService.name,
+          serviceValue: Math.round(selectedService.price_cents / 100),
+          date: payload.date,
+          time: payload.time,
+          status: "pending",
+          createdAt: new Date().toISOString(),
+        },
+      ]);
       // best-effort persist (ignore failures, e.g. UUID mismatch with mock services)
       try {
         await supabase.from("appointments").insert({
           service_id: payload.serviceId,
-          customer_name: payload.name,
-          customer_phone: payload.phone,
+          customer_name: fullName,
+          customer_phone: client.phone,
           appointment_date: payload.date,
           appointment_time: payload.time,
         });
@@ -104,7 +118,12 @@ function AgendarPage() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["booked", dateStr] });
-      setConfirmed({ name, date, time: time!, service: selectedService!.name });
+      setConfirmed({
+        name: `${client!.name} ${client!.surname}`.trim(),
+        date,
+        time: time!,
+        service: selectedService!.name,
+      });
     },
     onError: (e: any) => toast.error(e.message ?? "Erro ao agendar"),
   });
@@ -125,7 +144,7 @@ function AgendarPage() {
     );
   }
 
-  const canSubmit = serviceId && time && name.trim().length >= 2 && phone.trim().length >= 8;
+  const canSubmit = !!serviceId && !!time && !!client;
 
   return (
     <section className="mx-auto max-w-3xl px-4 py-12">
@@ -207,19 +226,11 @@ function AgendarPage() {
         </div>
       </Step>
 
-      {/* 4. Form */}
-      <Step number={4} title="Seus dados">
-        <div className="grid gap-4">
-          <div>
-            <Label htmlFor="name">Nome</Label>
-            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Seu nome" maxLength={80} />
-          </div>
-          <div>
-            <Label htmlFor="phone">Telefone (WhatsApp)</Label>
-            <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(11) 99999-0000" inputMode="tel" maxLength={20} />
-          </div>
-        </div>
-      </Step>
+      {client && (
+        <p className="mb-4 rounded-lg border border-border bg-card p-3 text-sm text-muted-foreground">
+          Agendando como <span className="font-semibold text-foreground">{client.name} {client.surname}</span> · {client.phone}
+        </p>
+      )}
 
       <div className="sticky bottom-0 -mx-4 mt-8 border-t border-border bg-background/95 px-4 py-4 backdrop-blur md:static md:mx-0 md:border-0 md:bg-transparent md:p-0">
         <Button
