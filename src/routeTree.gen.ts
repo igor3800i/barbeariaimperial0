@@ -15,6 +15,7 @@ import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as AgendarRouteImport } from './routes/agendar'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BarberLoginRouteImport } from './routes/barber.login'
+import { Route as BarberDashboardRouteImport } from './routes/barber.dashboard'
 
 const ServicosRoute = ServicosRouteImport.update({
   id: '/servicos',
@@ -46,6 +47,11 @@ const BarberLoginRoute = BarberLoginRouteImport.update({
   path: '/barber/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BarberDashboardRoute = BarberDashboardRouteImport.update({
+  id: '/barber/dashboard',
+  path: '/barber/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/contato': typeof ContatoRoute
   '/produtos': typeof ProdutosRoute
   '/servicos': typeof ServicosRoute
+  '/barber/dashboard': typeof BarberDashboardRoute
   '/barber/login': typeof BarberLoginRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/contato': typeof ContatoRoute
   '/produtos': typeof ProdutosRoute
   '/servicos': typeof ServicosRoute
+  '/barber/dashboard': typeof BarberDashboardRoute
   '/barber/login': typeof BarberLoginRoute
 }
 export interface FileRoutesById {
@@ -70,6 +78,7 @@ export interface FileRoutesById {
   '/contato': typeof ContatoRoute
   '/produtos': typeof ProdutosRoute
   '/servicos': typeof ServicosRoute
+  '/barber/dashboard': typeof BarberDashboardRoute
   '/barber/login': typeof BarberLoginRoute
 }
 export interface FileRouteTypes {
@@ -80,6 +89,7 @@ export interface FileRouteTypes {
     | '/contato'
     | '/produtos'
     | '/servicos'
+    | '/barber/dashboard'
     | '/barber/login'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -88,6 +98,7 @@ export interface FileRouteTypes {
     | '/contato'
     | '/produtos'
     | '/servicos'
+    | '/barber/dashboard'
     | '/barber/login'
   id:
     | '__root__'
@@ -96,6 +107,7 @@ export interface FileRouteTypes {
     | '/contato'
     | '/produtos'
     | '/servicos'
+    | '/barber/dashboard'
     | '/barber/login'
   fileRoutesById: FileRoutesById
 }
@@ -105,6 +117,7 @@ export interface RootRouteChildren {
   ContatoRoute: typeof ContatoRoute
   ProdutosRoute: typeof ProdutosRoute
   ServicosRoute: typeof ServicosRoute
+  BarberDashboardRoute: typeof BarberDashboardRoute
   BarberLoginRoute: typeof BarberLoginRoute
 }
 
@@ -152,6 +165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarberLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/barber/dashboard': {
+      id: '/barber/dashboard'
+      path: '/barber/dashboard'
+      fullPath: '/barber/dashboard'
+      preLoaderRoute: typeof BarberDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -161,8 +181,19 @@ const rootRouteChildren: RootRouteChildren = {
   ContatoRoute: ContatoRoute,
   ProdutosRoute: ProdutosRoute,
   ServicosRoute: ServicosRoute,
+  BarberDashboardRoute: BarberDashboardRoute,
   BarberLoginRoute: BarberLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
