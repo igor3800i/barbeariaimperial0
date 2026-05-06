@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ServicosRouteImport } from './routes/servicos'
 import { Route as ProdutosRouteImport } from './routes/produtos'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as AgendarRouteImport } from './routes/agendar'
@@ -30,6 +31,11 @@ const ServicosRoute = ServicosRouteImport.update({
 const ProdutosRoute = ProdutosRouteImport.update({
   id: '/produtos',
   path: '/produtos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContatoRoute = ContatoRouteImport.update({
@@ -88,6 +94,7 @@ export interface FileRoutesByFullPath {
   '/agendar': typeof AgendarRoute
   '/cadastro': typeof CadastroRoute
   '/contato': typeof ContatoRoute
+  '/login': typeof LoginRoute
   '/produtos': typeof ProdutosRoute
   '/servicos': typeof ServicosRoute
   '/barber/appointments': typeof BarberAppointmentsRoute
@@ -102,6 +109,7 @@ export interface FileRoutesByTo {
   '/agendar': typeof AgendarRoute
   '/cadastro': typeof CadastroRoute
   '/contato': typeof ContatoRoute
+  '/login': typeof LoginRoute
   '/produtos': typeof ProdutosRoute
   '/servicos': typeof ServicosRoute
   '/barber/appointments': typeof BarberAppointmentsRoute
@@ -117,6 +125,7 @@ export interface FileRoutesById {
   '/agendar': typeof AgendarRoute
   '/cadastro': typeof CadastroRoute
   '/contato': typeof ContatoRoute
+  '/login': typeof LoginRoute
   '/produtos': typeof ProdutosRoute
   '/servicos': typeof ServicosRoute
   '/barber/appointments': typeof BarberAppointmentsRoute
@@ -133,6 +142,7 @@ export interface FileRouteTypes {
     | '/agendar'
     | '/cadastro'
     | '/contato'
+    | '/login'
     | '/produtos'
     | '/servicos'
     | '/barber/appointments'
@@ -147,6 +157,7 @@ export interface FileRouteTypes {
     | '/agendar'
     | '/cadastro'
     | '/contato'
+    | '/login'
     | '/produtos'
     | '/servicos'
     | '/barber/appointments'
@@ -161,6 +172,7 @@ export interface FileRouteTypes {
     | '/agendar'
     | '/cadastro'
     | '/contato'
+    | '/login'
     | '/produtos'
     | '/servicos'
     | '/barber/appointments'
@@ -176,6 +188,7 @@ export interface RootRouteChildren {
   AgendarRoute: typeof AgendarRoute
   CadastroRoute: typeof CadastroRoute
   ContatoRoute: typeof ContatoRoute
+  LoginRoute: typeof LoginRoute
   ProdutosRoute: typeof ProdutosRoute
   ServicosRoute: typeof ServicosRoute
   BarberAppointmentsRoute: typeof BarberAppointmentsRoute
@@ -200,6 +213,13 @@ declare module '@tanstack/react-router' {
       path: '/produtos'
       fullPath: '/produtos'
       preLoaderRoute: typeof ProdutosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contato': {
@@ -280,6 +300,7 @@ const rootRouteChildren: RootRouteChildren = {
   AgendarRoute: AgendarRoute,
   CadastroRoute: CadastroRoute,
   ContatoRoute: ContatoRoute,
+  LoginRoute: LoginRoute,
   ProdutosRoute: ProdutosRoute,
   ServicosRoute: ServicosRoute,
   BarberAppointmentsRoute: BarberAppointmentsRoute,
