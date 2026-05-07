@@ -11,6 +11,7 @@ import { Scissors, MapPin, Phone, Instagram } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import { ClientAuthProvider } from "@/lib/client-auth-context";
 import { AuthProvider } from "@/lib/auth-context";
+import { BarberStoreProvider } from "@/lib/barber-store";
 
 import appCss from "../styles.css?url";
 
@@ -158,16 +159,18 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <ClientAuthProvider>
-        <AuthProvider>
-          <div className="flex min-h-screen flex-col">
-            <Header />
-            <main className="flex-1"><Outlet /></main>
-            <Footer />
-          </div>
-          <Toaster richColors position="top-center" />
-        </AuthProvider>
-      </ClientAuthProvider>
+      <BarberStoreProvider>
+        <ClientAuthProvider>
+          <AuthProvider>
+            <div className="flex min-h-screen flex-col">
+              <Header />
+              <main className="flex-1"><Outlet /></main>
+              <Footer />
+            </div>
+            <Toaster richColors position="top-center" />
+          </AuthProvider>
+        </ClientAuthProvider>
+      </BarberStoreProvider>
     </QueryClientProvider>
   );
 }
