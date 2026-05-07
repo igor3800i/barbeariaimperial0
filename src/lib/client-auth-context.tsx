@@ -1,8 +1,10 @@
 import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const STORAGE_KEY = "imperial_client";
 
 export type Client = {
+  id?: string;
   name: string;
   surname: string;
   phone: string;
@@ -13,8 +15,8 @@ export type Client = {
 type ClientAuthState = {
   client: Client | null;
   isAuthenticated: boolean;
-  register: (name: string, surname: string, phone: string) => void;
-  login: (phone: string) => boolean;
+  register: (name: string, surname: string, phone: string) => Promise<void>;
+  login: (phone: string) => Promise<boolean>;
   logout: () => void;
 };
 
@@ -40,31 +42,60 @@ export function ClientAuthProvider({ children }: { children: ReactNode }) {
     } catch {}
   };
 
-  const register = useCallback((name: string, surname: string, phone: string) => {
+  const register = useCallback(async (name: string, surname: string, phone: string) => {
+    const cleanName = name.trim();
+    const cleanSurname = surname.trim();
+    const cleanPhone = phone.trim();
+
+    // Check if phone already exists
+    const { data: existing } = await supabase
+      .from("clients")
+      .select("id, name, surname, phone, created_at")
+      .eq("phone", cleanPhone)
+      .maybeSingle();
+
+    let row = existing;
+    if (!row) {
+      const { data: inserted, error } = await supabase
+        .from("clients")
+        .insert({ name: cleanName, surname: cleanSurname, phone: cleanPhone })
+        .select("id, name, surname, phone, created_at")
+        .single();
+      if (error) throw error;
+      row = inserted;
+    }
+
     const c: Client = {
-      name: name.trim(),
-      surname: surname.trim(),
-      phone: phone.trim(),
+      id: row!.id,
+      name: row!.name,
+      surname: row!.surname,
+      phone: row!.phone,
       isLoggedIn: true,
-      createdAt: new Date().toISOString().slice(0, 10),
+      createdAt: (row!.created_at ?? new Date().toISOString()).slice(0, 10),
     };
     persist(c);
     setClient(c);
   }, []);
 
-  const login = useCallback((phone: string) => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return false;
-      const parsed = JSON.parse(raw) as Client;
-      if (parsed.phone === phone.trim()) {
-        const updated = { ...parsed, isLoggedIn: true };
-        persist(updated);
-        setClient(updated);
-        return true;
-      }
-    } catch {}
-    return false;
+  const login = useCallback(async (phone: string) => {
+    const cleanPhone = phone.trim();
+    const { data, error } = await supabase
+      .from("clients")
+      .select("id, name, surname, phone, created_at")
+      .eq("phone", cleanPhone)
+      .maybeSingle();
+    if (error || !data) return false;
+    const c: Client = {
+      id: data.id,
+      name: data.name,
+      surname: data.surname,
+      phone: data.phone,
+      isLoggedIn: true,
+      createdAt: (data.created_at ?? new Date().toISOString()).slice(0, 10),
+    };
+    persist(c);
+    setClient(c);
+    return true;
   }, []);
 
   const logout = useCallback(() => {
