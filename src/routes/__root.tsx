@@ -108,7 +108,7 @@ function Header() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2">
           <img src="/favicon.png" alt="Barbearia Imperial" className="h-10 w-10 rounded-full object-cover" />
-          <span className="text-lg font-bold text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>Barbearia Imperial</span>
+          <span className="text-lg font-bold text-foreground" style={{ fontFamily: "Merriweather, serif" }}>Barbearia Imperial</span>
         </Link>
         <nav className="hidden items-center gap-6 md:flex">
           <Link to="/" className={linkClass} activeOptions={{ exact: true }} activeProps={{ className: "text-sm font-medium text-primary" }}>Início</Link>
@@ -134,7 +134,7 @@ function Footer() {
         <div>
           <div className="flex items-center gap-2">
             <img src="/favicon.png" alt="Barbearia Imperial" className="h-9 w-9 rounded-full object-cover" />
-            <span className="text-lg font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>Barbearia Imperial</span>
+            <span className="text-lg font-bold" style={{ fontFamily: "Merriweather, serif" }}>Barbearia Imperial</span>
           </div>
           <p className="mt-3 text-sm text-muted-foreground">Tradição, estilo e precisão. Sua barbearia de confiança.</p>
         </div>
