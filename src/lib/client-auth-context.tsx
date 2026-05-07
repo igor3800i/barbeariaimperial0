@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
 
 const STORAGE_KEY = "imperial_client";
 
@@ -21,19 +21,17 @@ type ClientAuthState = {
 const Ctx = createContext<ClientAuthState | null>(null);
 
 export function ClientAuthProvider({ children }: { children: ReactNode }) {
-  const [client, setClient] = useState<Client | null>(null);
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
+  const [client, setClient] = useState<Client | null>(() => {
+    if (typeof window === "undefined") return null;
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as Client;
-        if (parsed?.isLoggedIn) setClient(parsed);
-      }
-    } catch {}
-    setHydrated(true);
-  }, []);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as Client;
+      return parsed?.isLoggedIn ? parsed : null;
+    } catch {
+      return null;
+    }
+  });
 
   const persist = (c: Client | null) => {
     try {
@@ -73,8 +71,6 @@ export function ClientAuthProvider({ children }: { children: ReactNode }) {
     persist(null);
     setClient(null);
   }, []);
-
-  if (!hydrated) return null;
 
   return (
     <Ctx.Provider value={{ client, isAuthenticated: !!client?.isLoggedIn, register, login, logout }}>
