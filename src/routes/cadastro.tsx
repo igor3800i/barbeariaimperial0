@@ -21,7 +21,7 @@ function CadastroPage() {
     if (auth.isAuthenticated) navigate({ to: "/" });
   }, [auth.isAuthenticated, navigate]);
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (name.trim().length < 2 || surname.trim().length < 2) {
       setError("Preencha nome e sobrenome.");
@@ -31,8 +31,12 @@ function CadastroPage() {
       setError("Telefone inválido.");
       return;
     }
-    auth.register(name, surname, phone);
-    navigate({ to: "/" });
+    try {
+      await auth.register(name, surname, phone);
+      navigate({ to: "/" });
+    } catch (err: any) {
+      setError(err?.message ?? "Erro ao cadastrar.");
+    }
   };
 
   return (
