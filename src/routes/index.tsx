@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { Scissors, Calendar, MapPin, Star } from "lucide-react";
+import { Scissors, Calendar, MapPin, Star, Clock } from "lucide-react";
 import heroImg from "@/assets/hero-barbershop.jpg";
 import { useClientAuth } from "@/lib/client-auth-context";
 
@@ -83,6 +83,57 @@ function Index() {
         </Link>
         <div className="mt-10 inline-flex items-center gap-2 text-sm text-muted-foreground">
           <MapPin className="h-4 w-4 text-primary" /> Rua das Tesouras, 123 — Centro
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 pb-12 md:pb-20">
+        <div className="mb-4 flex items-center gap-2">
+          <MapPin className="h-5 w-5 text-primary" />
+          <h2 className="text-2xl text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>
+            Nossa Localização
+          </h2>
+        </div>
+        <div className="overflow-hidden rounded-xl border border-border shadow-md">
+          <iframe
+            title="Mapa Barbearia Imperial"
+            src="https://maps.google.com/maps?q=Avenida+Jos%C3%A9+Alves+Seabra,3154,Bauru,SP,Brasil&output=embed&z=16"
+            className="h-[280px] w-full md:h-[400px]"
+            style={{ border: 0 }}
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+        </div>
+        <div className="mt-4 rounded-xl border border-border bg-card p-4">
+          <div className="mb-3 flex items-start gap-3">
+            <MapPin className="mt-0.5 h-5 w-5 text-primary" />
+            <div>
+              <p className="text-sm font-semibold text-foreground">Endereço</p>
+              <p className="text-sm text-muted-foreground">Av. José Alves Seabra, 3154</p>
+              <p className="text-sm text-muted-foreground">Bauru — SP</p>
+            </div>
+          </div>
+          <div className="mb-3 flex items-start gap-3">
+            <Clock className="mt-0.5 h-5 w-5 text-primary" />
+            <div>
+              <p className="text-sm font-semibold text-foreground">Horários</p>
+              <p className="text-sm text-muted-foreground">Segunda: 09:00 – 15:00</p>
+              <p className="text-sm text-muted-foreground">Terça a Sexta: 09:00 – 20:00</p>
+              <p className="text-sm text-muted-foreground">Sábado: 09:00 – 21:00</p>
+              <p className="text-sm text-muted-foreground">
+                <span className="font-medium text-destructive">●</span> Domingo: Fechado
+              </p>
+            </div>
+          </div>
+          <a
+            href="https://www.google.com/maps/search/Avenida+Jos%C3%A9+Alves+Seabra,3154,Bauru,SP"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            <MapPin className="h-4 w-4" />
+            Abrir no Google Maps
+          </a>
         </div>
       </section>
     </>
