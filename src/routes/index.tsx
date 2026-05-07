@@ -7,7 +7,7 @@ import { useClientAuth } from "@/lib/client-auth-context";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Navalha & Cia — Barbearia Premium com Agendamento Online" },
+      { title: "Barbearia Imperial — Barbearia Premium com Agendamento Online" },
       { name: "description", content: "Cortes clássicos e modernos, barba, combo. Agende em poucos cliques." },
     ],
   }),

@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import type { MockProduct } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/barber/products")({
-  head: () => ({ meta: [{ title: "Produtos — Imperial" }] }),
+  head: () => ({ meta: [{ title: "Produtos — Barbearia Imperial" }] }),
   component: ProductsPage,
 });
 

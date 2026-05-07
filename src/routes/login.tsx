@@ -1,11 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
-import { Scissors } from "lucide-react";
+
 import { useClientAuth, maskPhone } from "@/lib/client-auth-context";
 import heroImg from "@/assets/hero-barbershop.jpg";
 
 export const Route = createFileRoute("/login")({
-  head: () => ({ meta: [{ title: "Entrar — Imperial" }] }),
+  head: () => ({ meta: [{ title: "Entrar — Barbearia Imperial" }] }),
   component: LoginPage,
 });
 
@@ -39,9 +39,9 @@ function LoginPage() {
         style={{ background: "color-mix(in oklab, var(--card) 80%, transparent)", backdropFilter: "blur(24px)" }}
       >
         <div className="mb-6 text-center">
-          <div className="flex items-center justify-center gap-2 text-primary">
-            <Scissors className="h-6 w-6" />
-            <span className="text-2xl font-semibold" style={{ fontFamily: "'Playfair Display', serif" }}>Imperial</span>
+          <div className="flex items-center justify-center gap-2">
+            <img src="/favicon.png" alt="Barbearia Imperial" className="h-12 w-12 rounded-full object-cover" />
+            <span className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>Barbearia Imperial</span>
           </div>
           <h1 className="mt-4 text-3xl text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>Entrar</h1>
           <p className="mt-1 text-sm text-muted-foreground">Use seu telefone cadastrado</p>

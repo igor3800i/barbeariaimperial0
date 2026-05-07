@@ -1,10 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Eye, EyeOff, Scissors } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/barber/login")({
-  head: () => ({ meta: [{ title: "Acesso Barbeiro — Imperial" }] }),
+  head: () => ({ meta: [{ title: "Acesso — Barbearia Imperial" }] }),
   component: BarberLogin,
 });
 
@@ -48,13 +48,13 @@ function BarberLogin() {
         }}
       >
         <div className="mb-6 text-center">
-          <div className="flex items-center justify-center gap-2">
-            <Scissors className="h-7 w-7 text-primary" />
+          <div className="flex items-center justify-center gap-3">
+            <img src="/favicon.png" alt="Barbearia Imperial" className="h-14 w-14 rounded-full object-cover" />
             <span
-              className="text-3xl font-semibold text-primary"
+              className="text-2xl font-bold text-foreground"
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
-              Imperial
+              Barbearia Imperial
             </span>
           </div>
           <p className="mt-2 text-sm text-muted-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>

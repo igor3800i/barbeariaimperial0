@@ -5,7 +5,7 @@ import { useAppointments } from "@/lib/use-appointments";
 import { formatBRL } from "@/lib/format";
 
 export const Route = createFileRoute("/barber/financial")({
-  head: () => ({ meta: [{ title: "Financeiro — Imperial" }] }),
+  head: () => ({ meta: [{ title: "Financeiro — Barbearia Imperial" }] }),
   component: FinancialPage,
 });
 

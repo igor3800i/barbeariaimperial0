@@ -7,7 +7,7 @@ import { formatBRL } from "@/lib/format";
 import type { MockService } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/barber/services")({
-  head: () => ({ meta: [{ title: "Serviços — Imperial" }] }),
+  head: () => ({ meta: [{ title: "Serviços — Barbearia Imperial" }] }),
   component: ServicesPage,
 });
 
