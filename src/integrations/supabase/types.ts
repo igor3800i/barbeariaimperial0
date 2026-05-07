@@ -16,44 +16,63 @@ export type Database = {
     Tables: {
       appointments: {
         Row: {
-          appointment_date: string
-          appointment_time: string
+          client_name: string
+          client_phone: string
           created_at: string
-          customer_name: string
-          customer_phone: string
+          date: string
           id: string
-          service_id: string
+          service: string
+          service_value: number
           status: string
+          time: string
         }
         Insert: {
-          appointment_date: string
-          appointment_time: string
+          client_name: string
+          client_phone: string
           created_at?: string
-          customer_name: string
-          customer_phone: string
+          date: string
           id?: string
-          service_id: string
+          service: string
+          service_value: number
           status?: string
+          time: string
         }
         Update: {
-          appointment_date?: string
-          appointment_time?: string
+          client_name?: string
+          client_phone?: string
           created_at?: string
-          customer_name?: string
-          customer_phone?: string
+          date?: string
           id?: string
-          service_id?: string
+          service?: string
+          service_value?: number
           status?: string
+          time?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "appointments_service_id_fkey"
-            columns: ["service_id"]
-            isOneToOne: false
-            referencedRelation: "services"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
+      }
+      clients: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          phone: string
+          surname: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          phone: string
+          surname: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          phone?: string
+          surname?: string
+        }
+        Relationships: []
       }
       products: {
         Row: {
@@ -117,21 +136,7 @@ export type Database = {
       }
     }
     Views: {
-      booked_slots: {
-        Row: {
-          appointment_date: string | null
-          appointment_time: string | null
-        }
-        Insert: {
-          appointment_date?: string | null
-          appointment_time?: string | null
-        }
-        Update: {
-          appointment_date?: string | null
-          appointment_time?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       [_ in never]: never

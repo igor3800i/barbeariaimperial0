@@ -42,7 +42,7 @@ function AgendarPage() {
   const [time, setTime] = useState<string | undefined>();
   const [confirmed, setConfirmed] = useState<{ name: string; date: Date; time: string; service: string } | null>(null);
 
-  const { services: storeServices, appointments, setAppointments } = useBarberStore();
+  const { services: storeServices } = useBarberStore();
   const services = useMemo(
     () => storeServices.map((s) => ({
       id: String(s.id),
@@ -59,11 +59,11 @@ function AgendarPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("appointments")
-        .select("appointment_time")
-        .eq("appointment_date", dateStr)
-        .eq("status", "confirmed");
+        .select("time,status")
+        .eq("date", dateStr)
+        .neq("status", "cancelled");
       if (error) throw error;
-      return new Set((data ?? []).map((r) => (r.appointment_time as string).slice(0, 5)));
+      return new Set((data ?? []).map((r) => (r.time as string).slice(0, 5)));
     },
   });
 
@@ -83,41 +83,38 @@ function AgendarPage() {
     mutationFn: async () => {
       if (!client) throw new Error("Faça login para agendar");
       if (!serviceId || !time || !selectedService) throw new Error("Selecione serviço e horário");
-      const schema = z.object({
-        serviceId: z.string().min(1),
-        date: z.string(),
-        time: z.string(),
-      });
-      const payload = schema.parse({ serviceId, date: dateStr, time });
       const fullName = `${client.name} ${client.surname}`.trim();
-      // persist to local store so barber sees it
-      setAppointments([
-        ...appointments,
-        {
-          id: Date.now(),
-          clientName: fullName,
-          clientPhone: client.phone,
-          service: selectedService.name,
-          serviceValue: Math.round(selectedService.price_cents / 100),
-          date: payload.date,
-          time: payload.time,
-          status: "pending",
-          createdAt: new Date().toISOString(),
-        },
-      ]);
-      // best-effort persist (ignore failures, e.g. UUID mismatch with mock services)
-      try {
-        await supabase.from("appointments").insert({
-          service_id: payload.serviceId,
-          customer_name: fullName,
-          customer_phone: client.phone,
-          appointment_date: payload.date,
-          appointment_time: payload.time,
-        });
-      } catch {}
+
+      // Verify slot is free
+      const { data: existing, error: checkErr } = await supabase
+        .from("appointments")
+        .select("id")
+        .eq("date", dateStr)
+        .eq("time", time)
+        .neq("status", "cancelled")
+        .maybeSingle();
+      if (checkErr) throw checkErr;
+      if (existing) throw new Error("Horário já reservado, escolha outro");
+
+      const { error: insertErr } = await supabase.from("appointments").insert({
+        client_name: fullName,
+        client_phone: client.phone,
+        service: selectedService.name,
+        service_value: Math.round(selectedService.price_cents) / 100,
+        date: dateStr,
+        time: time,
+        status: "pending",
+      });
+      if (insertErr) {
+        if ((insertErr as any).code === "23505") {
+          throw new Error("Horário já reservado, escolha outro");
+        }
+        throw insertErr;
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["booked", dateStr] });
+      qc.invalidateQueries({ queryKey: ["appointments"] });
       setConfirmed({
         name: `${client!.name} ${client!.surname}`.trim(),
         date,

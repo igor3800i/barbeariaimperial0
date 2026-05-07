@@ -6,7 +6,7 @@ import {
   Tooltip, XAxis, YAxis, Area, ComposedChart,
 } from "recharts";
 import { BarberShell } from "@/components/barber/barber-shell";
-import { useBarberStore } from "@/lib/barber-store";
+import { useAppointments } from "@/lib/use-appointments";
 import { formatBRL } from "@/lib/format";
 
 export const Route = createFileRoute("/barber/dashboard")({
@@ -17,7 +17,12 @@ export const Route = createFileRoute("/barber/dashboard")({
 function isoDay(d: Date) { return d.toISOString().slice(0, 10); }
 
 function DashboardPage() {
-  const { appointments } = useBarberStore();
+  const { data: dbAppts = [] } = useAppointments();
+  const appointments = dbAppts.map((a) => ({
+    date: a.date,
+    status: a.status,
+    serviceValue: Number(a.service_value),
+  }));
 
   const today = new Date();
   const todayStr = isoDay(today);
