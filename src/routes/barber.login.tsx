@@ -51,13 +51,12 @@ function BarberLogin() {
           <div className="flex items-center justify-center gap-3">
             <img src="/favicon.png" alt="Barbearia Imperial" className="h-14 w-14 rounded-full object-cover" />
             <span
-              className="text-2xl font-bold text-foreground"
-              style={{ fontFamily: "'Playfair Display', serif" }}
+              className="text-2xl font-bold text-foreground font-serif"
             >
               Barbearia Imperial
             </span>
           </div>
-          <p className="mt-2 text-sm text-muted-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          <p className="mt-2 text-sm text-muted-foreground">
             Acesso exclusivo para barbeiros
           </p>
         </div>

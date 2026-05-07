@@ -92,7 +92,7 @@ export function BarberShell({ title, children }: { title: string; children: Reac
             </button>
             <Link to="/barber/dashboard" className="flex items-center gap-2 lg:hidden">
               <img src="/favicon.png" alt="Barbearia Imperial" className="h-8 w-8 rounded-full object-cover" />
-              <span className="text-base font-bold text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>
+              <span className="text-base font-bold text-foreground font-serif">
                 Barbearia Imperial
               </span>
             </Link>
@@ -150,7 +150,7 @@ function BrandRow({ compact }: { compact?: boolean }) {
   return (
     <div className={cn("flex items-center gap-2 border-b border-sidebar-border", compact ? "" : "p-5")}>
       <img src="/favicon.png" alt="Barbearia Imperial" className="h-9 w-9 rounded-full object-cover" />
-      <span className="text-lg font-bold text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>
+      <span className="text-lg font-bold text-foreground font-serif">
         Barbearia Imperial
       </span>
     </div>

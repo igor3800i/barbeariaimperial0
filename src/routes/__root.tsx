@@ -78,7 +78,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "apple-touch-icon", href: "/favicon.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Merriweather:wght@400;700&family=Source+Code+Pro:wght@400;500&display=swap" },
     ],
   }),
   shellComponent: RootShell,
@@ -108,7 +108,7 @@ function Header() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2">
           <img src="/favicon.png" alt="Barbearia Imperial" className="h-10 w-10 rounded-full object-cover" />
-          <span className="text-lg font-bold text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>Barbearia Imperial</span>
+          <span className="font-serif text-lg font-bold text-foreground">Barbearia Imperial</span>
         </Link>
         <nav className="hidden items-center gap-6 md:flex">
           <Link to="/" className={linkClass} activeOptions={{ exact: true }} activeProps={{ className: "text-sm font-medium text-primary" }}>Início</Link>
@@ -134,7 +134,7 @@ function Footer() {
         <div>
           <div className="flex items-center gap-2">
             <img src="/favicon.png" alt="Barbearia Imperial" className="h-9 w-9 rounded-full object-cover" />
-            <span className="text-lg font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>Barbearia Imperial</span>
+            <span className="font-serif text-lg font-bold">Barbearia Imperial</span>
           </div>
           <p className="mt-3 text-sm text-muted-foreground">Tradição, estilo e precisão. Sua barbearia de confiança.</p>
         </div>

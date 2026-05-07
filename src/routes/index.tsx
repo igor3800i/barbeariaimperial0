@@ -89,7 +89,7 @@ function Index() {
       <section className="mx-auto max-w-6xl px-4 pb-12 md:pb-20">
         <div className="mb-4 flex items-center gap-2">
           <MapPin className="h-5 w-5 text-primary" />
-          <h2 className="text-2xl text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>
+          <h2 className="text-2xl text-foreground font-serif">
             Nossa Localização
           </h2>
         </div>
