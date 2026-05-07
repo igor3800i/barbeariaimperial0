@@ -27,10 +27,20 @@ export const Route = createFileRoute("/agendar")({
   component: AgendarPage,
 });
 
-// 09:00 to 19:00 every 60 min
-const ALL_SLOTS = Array.from({ length: 11 }, (_, i) => `${String(9 + i).padStart(2, "0")}:00`);
+// Slots por dia da semana (0=domingo ... 6=sábado)
+function getSlotsByDayOfWeek(date: Date): string[] {
+  const day = date.getDay();
+  if (day === 0) return [];
+  if (day === 1) return ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00"];
+  if (day >= 2 && day <= 5)
+    return ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+  if (day === 6)
+    return ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"];
+  return [];
+}
 
 const NEXT_DAYS = Array.from({ length: 14 }, (_, i) => addDays(startOfDay(new Date()), i));
+const FIRST_AVAILABLE_DAY = NEXT_DAYS.find((d) => d.getDay() !== 0) ?? NEXT_DAYS[0];
 
 function AgendarPage() {
   const navigate = useNavigate();
@@ -39,7 +49,7 @@ function AgendarPage() {
   const { client } = useClientAuth();
 
   const [serviceId, setServiceId] = useState<string | undefined>(search.service);
-  const [date, setDate] = useState<Date>(NEXT_DAYS[0]);
+  const [date, setDate] = useState<Date>(FIRST_AVAILABLE_DAY);
   const [time, setTime] = useState<string | undefined>();
   const [confirmed, setConfirmed] = useState<{ name: string; date: Date; time: string; service: string } | null>(null);
 
@@ -87,12 +97,12 @@ function AgendarPage() {
   const isToday = startOfDay(new Date()).getTime() === date.getTime();
   const nowMinutes = new Date().getHours() * 60 + new Date().getMinutes();
   const availableSlots = useMemo(() => {
-    return ALL_SLOTS.map((slot) => {
+    return getSlotsByDayOfWeek(date).map((slot) => {
       const [h, m] = slot.split(":").map(Number);
       const past = isToday && h * 60 + m <= nowMinutes;
       return { slot, taken: booked?.has(slot) ?? false, past };
     });
-  }, [booked, isToday, nowMinutes]);
+  }, [booked, isToday, nowMinutes, date]);
 
   const selectedService = services?.find((s) => s.id === serviceId);
 
@@ -216,15 +226,19 @@ function AgendarPage() {
         <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-2">
           {NEXT_DAYS.map((d) => {
             const selected = d.getTime() === date.getTime();
+            const isSunday = d.getDay() === 0;
+            const disabled = isBefore(d, startOfDay(new Date())) || isSunday;
             return (
               <button
                 key={d.toISOString()}
-                onClick={() => { setDate(d); setTime(undefined); }}
-                disabled={isBefore(d, startOfDay(new Date()))}
+                onClick={() => { if (!disabled) { setDate(d); setTime(undefined); } }}
+                disabled={disabled}
                 className={cn(
                   "flex min-w-[64px] flex-col items-center rounded-lg border px-3 py-2 transition",
                   selected ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:border-primary/40",
+                  disabled && "pointer-events-none cursor-not-allowed opacity-30",
                 )}
+                title={isSunday ? "Fechado aos domingos" : undefined}
               >
                 <span className="text-[10px] uppercase tracking-wider opacity-70">
                   {format(d, "EEE", { locale: ptBR })}
@@ -264,6 +278,11 @@ function AgendarPage() {
               </button>
             );
           })}
+          {!bookedLoading && availableSlots.length === 0 && (
+            <p className="col-span-full rounded-lg border border-border bg-card p-4 text-center text-sm text-muted-foreground">
+              Fechado neste dia. Escolha outra data.
+            </p>
+          )}
         </div>
       </Step>
 
