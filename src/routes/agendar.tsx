@@ -42,7 +42,7 @@ function AgendarPage() {
   const [time, setTime] = useState<string | undefined>();
   const [confirmed, setConfirmed] = useState<{ name: string; date: Date; time: string; service: string } | null>(null);
 
-  const { services: storeServices, appointments, setAppointments } = useBarberStore();
+  const { services: storeServices } = useBarberStore();
   const services = useMemo(
     () => storeServices.map((s) => ({
       id: String(s.id),
