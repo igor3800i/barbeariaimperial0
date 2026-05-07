@@ -4,7 +4,7 @@ import { MapPin, Phone, Clock, Instagram } from "lucide-react";
 export const Route = createFileRoute("/contato")({
   head: () => ({
     meta: [
-      { title: "Contato e Endereço — Navalha & Cia" },
+      { title: "Contato e Endereço — Barbearia Imperial" },
       { name: "description", content: "Onde nos encontrar, horários e contato direto." },
     ],
   }),

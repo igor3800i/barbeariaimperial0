@@ -106,7 +106,7 @@ function Header() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2">
           <Scissors className="h-5 w-5 text-primary" />
-          <span className="font-display text-xl tracking-widest text-foreground">Navalha & Cia</span>
+          <span className="font-display text-xl tracking-widest text-foreground">Barbearia Imperial</span>
         </Link>
         <nav className="hidden items-center gap-6 md:flex">
           <Link to="/" className={linkClass} activeOptions={{ exact: true }} activeProps={{ className: "text-sm font-medium text-primary" }}>Início</Link>
@@ -132,7 +132,7 @@ function Footer() {
         <div>
           <div className="flex items-center gap-2">
             <Scissors className="h-5 w-5 text-primary" />
-            <span className="font-display text-xl tracking-widest">Navalha & Cia</span>
+            <span className="font-display text-xl tracking-widest">Barbearia Imperial</span>
           </div>
           <p className="mt-3 text-sm text-muted-foreground">Tradição, estilo e precisão. Sua barbearia de confiança.</p>
         </div>
@@ -149,7 +149,7 @@ function Footer() {
         </div>
       </div>
       <div className="border-t border-border py-4 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Navalha & Cia. Todos os direitos reservados.
+        © {new Date().getFullYear()} Barbearia Imperial. Todos os direitos reservados.
       </div>
     </footer>
   );

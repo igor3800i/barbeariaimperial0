@@ -5,7 +5,7 @@ import { useClientAuth, maskPhone } from "@/lib/client-auth-context";
 import heroImg from "@/assets/hero-barbershop.jpg";
 
 export const Route = createFileRoute("/login")({
-  head: () => ({ meta: [{ title: "Entrar — Imperial" }] }),
+  head: () => ({ meta: [{ title: "Entrar — Barbearia Imperial" }] }),
   component: LoginPage,
 });
 

@@ -7,7 +7,7 @@ import { Package } from "lucide-react";
 export const Route = createFileRoute("/produtos")({
   head: () => ({
     meta: [
-      { title: "Produtos — Navalha & Cia" },
+      { title: "Produtos — Barbearia Imperial" },
       { name: "description", content: "Pomadas, óleos, shampoos e cosméticos masculinos." },
     ],
   }),

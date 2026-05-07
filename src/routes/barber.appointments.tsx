@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import type { AppointmentStatus } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/barber/appointments")({
-  head: () => ({ meta: [{ title: "Agendamentos — Imperial" }] }),
+  head: () => ({ meta: [{ title: "Agendamentos — Barbearia Imperial" }] }),
   component: AppointmentsPage,
 });
 

@@ -4,7 +4,7 @@ import { Eye, EyeOff, Scissors } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/barber/login")({
-  head: () => ({ meta: [{ title: "Acesso Barbeiro — Imperial" }] }),
+  head: () => ({ meta: [{ title: "Acesso — Barbearia Imperial" }] }),
   component: BarberLogin,
 });
 

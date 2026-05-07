@@ -7,7 +7,7 @@ import { Clock, Scissors } from "lucide-react";
 export const Route = createFileRoute("/servicos")({
   head: () => ({
     meta: [
-      { title: "Serviços e Preços — Navalha & Cia" },
+      { title: "Serviços e Preços — Barbearia Imperial" },
       { name: "description", content: "Corte, barba, combo e mais. Veja os preços e agende online." },
     ],
   }),

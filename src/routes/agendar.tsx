@@ -20,7 +20,7 @@ export const Route = createFileRoute("/agendar")({
   validateSearch: (s) => searchSchema.parse(s),
   head: () => ({
     meta: [
-      { title: "Agendar Horário — Navalha & Cia" },
+      { title: "Agendar Horário — Barbearia Imperial" },
       { name: "description", content: "Reserve seu horário online em segundos." },
     ],
   }),
