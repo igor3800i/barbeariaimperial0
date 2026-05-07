@@ -1,8 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, Check, CheckCheck, X } from "lucide-react";
+import { toast } from "sonner";
 import { BarberShell } from "@/components/barber/barber-shell";
-import { useBarberStore } from "@/lib/barber-store";
+import { useAppointments } from "@/lib/use-appointments";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 import { formatBRL } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { AppointmentStatus } from "@/lib/mock-data";
@@ -27,7 +30,8 @@ const STATUS_CLASSES: Record<AppointmentStatus, string> = {
 };
 
 function AppointmentsPage() {
-  const { appointments } = useBarberStore();
+  const { data: appointments = [] } = useAppointments();
+  const qc = useQueryClient();
   const [period, setPeriod] = useState<"hoje" | "semana" | "mes" | "todos">("hoje");
   const [status, setStatus] = useState<"todos" | AppointmentStatus>("todos");
   const [q, setQ] = useState("");
@@ -50,10 +54,20 @@ function AppointmentsPage() {
       .filter((a) => {
         if (q.trim() === "") return true;
         const needle = q.toLowerCase();
-        return a.clientName.toLowerCase().includes(needle) || a.clientPhone.includes(needle);
+        return a.client_name.toLowerCase().includes(needle) || a.client_phone.includes(needle);
       })
       .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
   }, [appointments, period, status, q]);
+
+  async function updateStatus(id: string, status: AppointmentStatus) {
+    const { error } = await supabase.from("appointments").update({ status }).eq("id", id);
+    if (error) {
+      toast.error("Erro ao atualizar status");
+      return;
+    }
+    toast.success("Status atualizado");
+    qc.invalidateQueries({ queryKey: ["appointments"] });
+  }
 
   return (
     <BarberShell title="Agendamentos">
@@ -95,12 +109,12 @@ function AppointmentsPage() {
         {filtered.map((a) => (
           <div key={a.id} className="flex items-center gap-3 rounded-xl border border-border bg-card p-3">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/15 font-bold text-primary">
-              {a.clientName[0]}
+              {a.client_name[0]}
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-baseline justify-between gap-2">
-                <p className="truncate font-semibold text-foreground">{a.clientName}</p>
-                <p className="shrink-0 text-sm font-bold text-primary">{formatBRL(a.serviceValue * 100)}</p>
+                <p className="truncate font-semibold text-foreground">{a.client_name}</p>
+                <p className="shrink-0 text-sm font-bold text-primary">{formatBRL(Number(a.service_value) * 100)}</p>
               </div>
               <p className="truncate text-xs text-muted-foreground">{a.service}</p>
               <div className="mt-1 flex items-center gap-2">
@@ -108,18 +122,45 @@ function AppointmentsPage() {
                 <span
                   className={cn(
                     "rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider",
-                    STATUS_CLASSES[a.status],
+                    STATUS_CLASSES[a.status as AppointmentStatus],
                   )}
                   style={a.status === "pending" ? { background: "oklch(0.85 0.15 85)" } : undefined}
                 >
-                  {STATUS_LABEL[a.status]}
+                  {STATUS_LABEL[a.status as AppointmentStatus]}
                 </span>
+              </div>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {a.status !== "confirmed" && a.status !== "completed" && a.status !== "cancelled" && (
+                  <ActionBtn onClick={() => updateStatus(a.id, "confirmed")} icon={Check} label="Confirmar" />
+                )}
+                {a.status !== "completed" && a.status !== "cancelled" && (
+                  <ActionBtn onClick={() => updateStatus(a.id, "completed")} icon={CheckCheck} label="Concluir" />
+                )}
+                {a.status !== "cancelled" && a.status !== "completed" && (
+                  <ActionBtn onClick={() => updateStatus(a.id, "cancelled")} icon={X} label="Cancelar" destructive />
+                )}
               </div>
             </div>
           </div>
         ))}
       </div>
     </BarberShell>
+  );
+}
+
+function ActionBtn({ onClick, icon: Icon, label, destructive }: { onClick: () => void; icon: any; label: string; destructive?: boolean }) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[11px] font-medium transition",
+        destructive
+          ? "border-destructive/40 text-destructive hover:bg-destructive/10"
+          : "border-border text-foreground hover:border-primary/50 hover:bg-primary/10",
+      )}
+    >
+      <Icon className="h-3 w-3" /> {label}
+    </button>
   );
 }
 
