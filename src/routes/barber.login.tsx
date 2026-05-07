@@ -56,7 +56,7 @@ function BarberLogin() {
               Barbearia Imperial
             </span>
           </div>
-          <p className="mt-2 text-sm text-muted-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          <p className="mt-2 text-sm text-muted-foreground">
             Acesso exclusivo para barbeiros
           </p>
         </div>

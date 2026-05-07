@@ -57,7 +57,7 @@ function CadastroPage() {
             <span className="text-2xl font-bold text-foreground font-serif">Barbearia Imperial</span>
           </div>
           <h1 className="mt-4 text-3xl text-foreground font-serif">Bem-vindo!</h1>
-          <p className="mt-1 text-sm text-muted-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          <p className="mt-1 text-sm text-muted-foreground">
             Crie sua conta para agendar
           </p>
         </div>
