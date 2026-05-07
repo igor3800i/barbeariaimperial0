@@ -54,9 +54,9 @@ function CadastroPage() {
         <div className="mb-6 text-center">
           <div className="flex items-center justify-center gap-2">
             <img src="/favicon.png" alt="Barbearia Imperial" className="h-12 w-12 rounded-full object-cover" />
-            <span className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>Barbearia Imperial</span>
+            <span className="text-2xl font-bold text-foreground" className="font-serif">Barbearia Imperial</span>
           </div>
-          <h1 className="mt-4 text-3xl text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>Bem-vindo!</h1>
+          <h1 className="mt-4 text-3xl text-foreground" className="font-serif">Bem-vindo!</h1>
           <p className="mt-1 text-sm text-muted-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
             Crie sua conta para agendar
           </p>

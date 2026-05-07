@@ -52,7 +52,7 @@ function BarberLogin() {
             <img src="/favicon.png" alt="Barbearia Imperial" className="h-14 w-14 rounded-full object-cover" />
             <span
               className="text-2xl font-bold text-foreground"
-              style={{ fontFamily: "'Playfair Display', serif" }}
+              className="font-serif"
             >
               Barbearia Imperial
             </span>
