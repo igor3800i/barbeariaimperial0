@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { BarberShell } from "@/components/barber/barber-shell";
-import { useBarberStore } from "@/lib/barber-store";
+import { useAppointments } from "@/lib/use-appointments";
 import { formatBRL } from "@/lib/format";
 
 export const Route = createFileRoute("/barber/financial")({
@@ -10,7 +10,12 @@ export const Route = createFileRoute("/barber/financial")({
 });
 
 function FinancialPage() {
-  const { appointments } = useBarberStore();
+  const { data: dbAppts = [] } = useAppointments();
+  const appointments = dbAppts.map((a) => ({
+    date: a.date,
+    status: a.status,
+    serviceValue: Number(a.service_value),
+  }));
   const billable = (s: string) => s === "confirmed" || s === "completed";
 
   const byDay = useMemo(() => {
