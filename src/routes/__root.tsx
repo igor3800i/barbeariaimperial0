@@ -145,7 +145,7 @@ function Footer() {
         </div>
         <div className="space-y-2 text-sm text-muted-foreground">
           <h3 className="font-display text-base text-primary">Contato</h3>
-          <p className="flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> Bauru, SP</p>
+          <p className="flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> Av. José Alves Seabra, 3154 — Bauru, SP</p>
           <p className="flex items-center gap-2"><Phone className="h-4 w-4 text-primary" /> (11) 99999-0000</p>
           <p className="flex items-center gap-2"><Instagram className="h-4 w-4 text-primary" /> @barbeariaimperial</p>
         </div>
