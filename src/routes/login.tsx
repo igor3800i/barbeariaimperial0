@@ -41,9 +41,9 @@ function LoginPage() {
         <div className="mb-6 text-center">
           <div className="flex items-center justify-center gap-2">
             <img src="/favicon.png" alt="Barbearia Imperial" className="h-12 w-12 rounded-full object-cover" />
-            <span className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>Barbearia Imperial</span>
+            <span className="text-2xl font-bold text-foreground" style={{ fontFamily: "Merriweather, serif" }}>Barbearia Imperial</span>
           </div>
-          <h1 className="mt-4 text-3xl text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>Entrar</h1>
+          <h1 className="mt-4 text-3xl text-foreground" style={{ fontFamily: "Merriweather, serif" }}>Entrar</h1>
           <p className="mt-1 text-sm text-muted-foreground">Use seu telefone cadastrado</p>
         </div>
 
