@@ -7,7 +7,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { Scissors, MapPin, Phone, Instagram } from "lucide-react";
+import { MapPin, Phone, Instagram } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import { ClientAuthProvider } from "@/lib/client-auth-context";
 import { AuthProvider } from "@/lib/auth-context";
@@ -74,9 +74,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      { rel: "icon", type: "image/png", href: "/favicon.png" },
+      { rel: "apple-touch-icon", href: "/favicon.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" },
     ],
   }),
   shellComponent: RootShell,
@@ -105,8 +107,8 @@ function Header() {
     <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2">
-          <Scissors className="h-5 w-5 text-primary" />
-          <span className="font-display text-xl tracking-widest text-foreground">Barbearia Imperial</span>
+          <img src="/favicon.png" alt="Barbearia Imperial" className="h-10 w-10 rounded-full object-cover" />
+          <span className="text-lg font-bold text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>Barbearia Imperial</span>
         </Link>
         <nav className="hidden items-center gap-6 md:flex">
           <Link to="/" className={linkClass} activeOptions={{ exact: true }} activeProps={{ className: "text-sm font-medium text-primary" }}>Início</Link>
@@ -131,8 +133,8 @@ function Footer() {
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 md:grid-cols-3">
         <div>
           <div className="flex items-center gap-2">
-            <Scissors className="h-5 w-5 text-primary" />
-            <span className="font-display text-xl tracking-widest">Barbearia Imperial</span>
+            <img src="/favicon.png" alt="Barbearia Imperial" className="h-9 w-9 rounded-full object-cover" />
+            <span className="text-lg font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>Barbearia Imperial</span>
           </div>
           <p className="mt-3 text-sm text-muted-foreground">Tradição, estilo e precisão. Sua barbearia de confiança.</p>
         </div>
@@ -143,13 +145,13 @@ function Footer() {
         </div>
         <div className="space-y-2 text-sm text-muted-foreground">
           <h3 className="font-display text-base text-primary">Contato</h3>
-          <p className="flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> Rua das Tesouras, 123 — Centro</p>
+          <p className="flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> Bauru, SP</p>
           <p className="flex items-center gap-2"><Phone className="h-4 w-4 text-primary" /> (11) 99999-0000</p>
-          <p className="flex items-center gap-2"><Instagram className="h-4 w-4 text-primary" /> @navalhaecia</p>
+          <p className="flex items-center gap-2"><Instagram className="h-4 w-4 text-primary" /> @barbeariaimperial</p>
         </div>
       </div>
       <div className="border-t border-border py-4 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Barbearia Imperial. Todos os direitos reservados.
+        © {new Date().getFullYear()} Barbearia Imperial — Todos os direitos reservados · Bauru, SP
       </div>
     </footer>
   );
