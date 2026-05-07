@@ -4,7 +4,8 @@ import { useMemo, useState } from "react";
 import { z } from "zod";
 import { format, addDays, isBefore, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { CheckCircle2, Calendar as CalendarIcon, Clock, Scissors, ChevronLeft } from "lucide-react";
+import { CheckCircle2, Calendar as CalendarIcon, Clock, Scissors, ChevronLeft, Lock, AlertTriangle } from "lucide-react";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBRL } from "@/lib/format";
@@ -54,18 +55,34 @@ function AgendarPage() {
   );
 
   const dateStr = format(date, "yyyy-MM-dd");
-  const { data: booked } = useQuery({
+  const { data: booked, isLoading: bookedLoading } = useQuery({
     queryKey: ["booked", dateStr],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("appointments")
         .select("time,status")
         .eq("date", dateStr)
-        .neq("status", "cancelled");
+        .in("status", ["pending", "confirmed"]);
       if (error) throw error;
       return new Set((data ?? []).map((r) => (r.time as string).slice(0, 5)));
     },
+    refetchInterval: 30_000,
   });
+
+  // Realtime: invalidate booked on any appointments change
+  useEffect(() => {
+    const channel = supabase
+      .channel(`booked-${dateStr}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "appointments" },
+        () => qc.invalidateQueries({ queryKey: ["booked", dateStr] }),
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [dateStr, qc]);
 
   const isToday = startOfDay(new Date()).getTime() === date.getTime();
   const nowMinutes = new Date().getHours() * 60 + new Date().getMinutes();
@@ -94,7 +111,13 @@ function AgendarPage() {
         .neq("status", "cancelled")
         .maybeSingle();
       if (checkErr) throw checkErr;
-      if (existing) throw new Error("Horário já reservado, escolha outro");
+      if (existing) {
+        const err = new Error(
+          "Este horário acabou de ser reservado por outro cliente. Por favor, escolha um horário diferente.",
+        );
+        (err as any).slotTaken = true;
+        throw err;
+      }
 
       const { error: insertErr } = await supabase.from("appointments").insert({
         client_name: fullName,
@@ -107,7 +130,11 @@ function AgendarPage() {
       });
       if (insertErr) {
         if ((insertErr as any).code === "23505") {
-          throw new Error("Horário já reservado, escolha outro");
+          const err = new Error(
+            "Este horário acabou de ser reservado por outro cliente. Por favor, escolha um horário diferente.",
+          );
+          (err as any).slotTaken = true;
+          throw err;
         }
         throw insertErr;
       }
@@ -122,7 +149,19 @@ function AgendarPage() {
         service: selectedService!.name,
       });
     },
-    onError: (e: any) => toast.error(e.message ?? "Erro ao agendar"),
+    onError: (e: any) => {
+      if (e?.slotTaken) {
+        toast.error("Horário indisponível! Escolha outro horário.", {
+          description: e.message,
+          duration: 4000,
+          icon: <AlertTriangle className="h-4 w-4" />,
+        });
+        setTime(undefined);
+        qc.invalidateQueries({ queryKey: ["booked", dateStr] });
+        return;
+      }
+      toast.error(e.message ?? "Erro ao agendar");
+    },
   });
 
   if (confirmed) {
@@ -201,7 +240,10 @@ function AgendarPage() {
       {/* 3. Time */}
       <Step number={3} title="Escolha o horário">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {availableSlots.map(({ slot, taken, past }) => {
+          {bookedLoading && Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="min-h-12 animate-pulse rounded-[var(--radius)] bg-muted" />
+          ))}
+          {!bookedLoading && availableSlots.map(({ slot, taken, past }) => {
             const disabled = taken || past;
             const selected = time === slot;
             return (
@@ -210,13 +252,15 @@ function AgendarPage() {
                 disabled={disabled}
                 onClick={() => setTime(slot)}
                 className={cn(
-                  "min-h-12 rounded-[var(--radius)] border font-semibold transition",
+                  "relative flex min-h-12 items-center justify-center gap-1.5 rounded-[var(--radius)] border font-semibold transition",
                   selected && "border-primary bg-primary text-primary-foreground",
                   !selected && !disabled && "border-border bg-card text-foreground hover:border-primary/50",
-                  disabled && "cursor-not-allowed border-transparent bg-muted text-muted-foreground opacity-60",
+                  disabled && "cursor-not-allowed border-transparent bg-muted text-muted-foreground opacity-40 hover:border-transparent",
                 )}
+                title={taken ? "Horário ocupado" : past ? "Horário passado" : undefined}
               >
-                {slot}
+                <span>{slot}</span>
+                {taken && <Lock className="h-3 w-3" aria-label="Ocupado" />}
               </button>
             );
           })}
