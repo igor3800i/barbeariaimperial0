@@ -140,8 +140,10 @@ function Footer() {
         </div>
         <div className="text-sm">
           <h3 className="font-display text-base text-primary">Horário</h3>
-          <p className="mt-2 text-muted-foreground">Ter – Sáb: 09h às 20h</p>
-          <p className="text-muted-foreground">Domingo e Segunda: Fechado</p>
+          <p className="mt-2 text-muted-foreground">Segunda: 09:00 – 15:00</p>
+          <p className="text-muted-foreground">Terça a Sexta: 09:00 – 20:00</p>
+          <p className="text-muted-foreground">Sábado: 09:00 – 21:00</p>
+          <p className="text-muted-foreground"><span className="text-destructive">●</span> Domingo: Fechado</p>
         </div>
         <div className="space-y-2 text-sm text-muted-foreground">
           <h3 className="font-display text-base text-primary">Contato</h3>
