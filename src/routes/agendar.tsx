@@ -254,8 +254,8 @@ function AgendarPage() {
                 className={cn(
                   "relative flex min-h-12 items-center justify-center gap-1.5 rounded-[var(--radius)] border font-semibold transition",
                   selected && "border-primary bg-primary text-primary-foreground",
-                  !selected && !disabled && "border-border bg-card text-foreground hover:border-primary/50",
-                  disabled && "cursor-not-allowed border-transparent bg-muted text-muted-foreground opacity-40 hover:border-transparent",
+                  !selected && !disabled && "border-border bg-card text-foreground hover:border-primary hover:text-primary",
+                  disabled && "pointer-events-none cursor-not-allowed border-transparent bg-muted text-muted-foreground line-through opacity-35 [filter:grayscale(60%)]",
                 )}
                 title={taken ? "Horário ocupado" : past ? "Horário passado" : undefined}
               >
