@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
-import { Scissors } from "lucide-react";
+
 import { useClientAuth, maskPhone } from "@/lib/client-auth-context";
 import heroImg from "@/assets/hero-barbershop.jpg";
 
