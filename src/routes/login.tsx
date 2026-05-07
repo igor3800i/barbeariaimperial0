@@ -19,10 +19,11 @@ function LoginPage() {
     if (auth.isAuthenticated) navigate({ to: "/" });
   }, [auth.isAuthenticated, navigate]);
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!auth.login(phone)) {
+    const ok = await auth.login(phone);
+    if (!ok) {
       setError("Número não encontrado. Crie sua conta!");
       return;
     }
