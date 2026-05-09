@@ -1,11 +1,12 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
-  Bell, LogOut, Menu, X, LayoutDashboard, CalendarDays,
+  LogOut, Menu, X, LayoutDashboard, CalendarDays,
   Package, Scissors, DollarSign, Settings, ChevronRight,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
+import { NotificationsBell } from "@/components/barber/notifications-bell";
 
 const NAV = [
   { to: "/barber/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -103,10 +104,7 @@ export function BarberShell({ title, children }: { title: string; children: Reac
           </h1>
 
           <div className="flex items-center gap-2">
-            <button className="relative rounded-full p-2 text-muted-foreground hover:text-foreground" aria-label="Notificações">
-              <Bell className="h-5 w-5" />
-              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-primary" />
-            </button>
+            <NotificationsBell />
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary font-bold text-primary-foreground">
               I
             </div>

@@ -74,6 +74,36 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          metadata: Json
+          read: boolean
+          title: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          metadata?: Json
+          read?: boolean
+          title: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          metadata?: Json
+          read?: boolean
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           active: boolean
@@ -139,7 +169,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_monthly_report: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
