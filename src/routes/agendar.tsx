@@ -1,10 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { format, addDays, isBefore, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { CheckCircle2, Calendar as CalendarIcon, Clock, Scissors, ChevronLeft, Lock, AlertTriangle } from "lucide-react";
+import { CheckCircle2, Calendar as CalendarIcon, Clock, Scissors, ChevronLeft, ChevronRight, Lock, AlertTriangle } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,7 +39,19 @@ function getSlotsByDayOfWeek(date: Date): string[] {
   return [];
 }
 
-const NEXT_DAYS = Array.from({ length: 14 }, (_, i) => addDays(startOfDay(new Date()), i));
+function buildNextDays() {
+  const start = startOfDay(new Date());
+  const end = new Date(start);
+  end.setMonth(end.getMonth() + 2);
+  const days: Date[] = [];
+  let d = start;
+  while (d.getTime() <= end.getTime()) {
+    days.push(d);
+    d = addDays(d, 1);
+  }
+  return days;
+}
+const NEXT_DAYS = buildNextDays();
 const FIRST_AVAILABLE_DAY = NEXT_DAYS.find((d) => d.getDay() !== 0) ?? NEXT_DAYS[0];
 
 function AgendarPage() {
@@ -52,6 +64,14 @@ function AgendarPage() {
   const [date, setDate] = useState<Date>(FIRST_AVAILABLE_DAY);
   const [time, setTime] = useState<string | undefined>();
   const [confirmed, setConfirmed] = useState<{ name: string; date: Date; time: string; service: string } | null>(null);
+  const daysScrollRef = useRef<HTMLDivElement>(null);
+  const scrollDays = (dir: 1 | -1) => {
+    const el = daysScrollRef.current;
+    if (!el) return;
+    // Each card ~72px wide (min-w 64 + gap 8); 7 days at a time
+    el.scrollBy({ left: dir * 72 * 7, behavior: "smooth" });
+  };
+  const today = startOfDay(new Date());
 
   const { services: storeServices } = useBarberStore();
   const services = useMemo(
@@ -223,31 +243,64 @@ function AgendarPage() {
 
       {/* 2. Date */}
       <Step number={2} title="Escolha o dia">
-        <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-2">
-          {NEXT_DAYS.map((d) => {
-            const selected = d.getTime() === date.getTime();
-            const isSunday = d.getDay() === 0;
-            const disabled = isBefore(d, startOfDay(new Date())) || isSunday;
-            return (
-              <button
-                key={d.toISOString()}
-                onClick={() => { if (!disabled) { setDate(d); setTime(undefined); } }}
-                disabled={disabled}
-                className={cn(
-                  "flex min-w-[64px] flex-col items-center rounded-lg border px-3 py-2 transition",
-                  selected ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:border-primary/40",
-                  disabled && "pointer-events-none cursor-not-allowed opacity-30",
-                )}
-                title={isSunday ? "Fechado aos domingos" : undefined}
-              >
-                <span className="text-[10px] uppercase tracking-wider opacity-70">
-                  {format(d, "EEE", { locale: ptBR })}
-                </span>
-                <span className="font-display text-2xl leading-none">{format(d, "dd")}</span>
-                <span className="text-[10px] opacity-70">{format(d, "MMM", { locale: ptBR })}</span>
-              </button>
-            );
-          })}
+        <div className="relative -mx-4 px-4">
+          <button
+            type="button"
+            aria-label="Semana anterior"
+            onClick={() => scrollDays(-1)}
+            className="absolute left-1 top-1/2 z-20 hidden -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/90 p-1.5 text-foreground shadow-sm backdrop-blur transition hover:border-primary hover:text-primary sm:flex"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            aria-label="Próxima semana"
+            onClick={() => scrollDays(1)}
+            className="absolute right-1 top-1/2 z-20 hidden -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/90 p-1.5 text-foreground shadow-sm backdrop-blur transition hover:border-primary hover:text-primary sm:flex"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-background to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-background to-transparent" />
+          <div
+            ref={daysScrollRef}
+            className="flex gap-2 overflow-x-auto scroll-smooth pb-2"
+            style={{ scrollBehavior: "smooth" }}
+          >
+            {NEXT_DAYS.map((d) => {
+              const selected = d.getTime() === date.getTime();
+              const isSunday = d.getDay() === 0;
+              const isToday = d.getTime() === today.getTime();
+              const disabled = isBefore(d, today) || isSunday;
+              return (
+                <button
+                  key={d.toISOString()}
+                  onClick={() => { if (!disabled) { setDate(d); setTime(undefined); } }}
+                  disabled={disabled}
+                  className={cn(
+                    "relative flex min-w-[64px] shrink-0 flex-col items-center rounded-lg border px-3 py-2 transition",
+                    selected
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-card text-foreground hover:border-primary/40",
+                    !selected && isToday && "ring-1 ring-primary/60",
+                    isSunday && "opacity-40",
+                    disabled && !isSunday && "pointer-events-none cursor-not-allowed opacity-30",
+                    isSunday && "pointer-events-none cursor-not-allowed",
+                  )}
+                  title={isSunday ? "Fechado aos domingos" : undefined}
+                >
+                  <span className="text-[10px] uppercase tracking-wider opacity-70">
+                    {format(d, "EEE", { locale: ptBR })}
+                  </span>
+                  <span className="font-display text-2xl leading-none">{format(d, "dd")}</span>
+                  <span className="text-[10px] opacity-70">{format(d, "MMM", { locale: ptBR })}</span>
+                  {isToday && !selected && (
+                    <span className="mt-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary">Hoje</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </Step>
 
