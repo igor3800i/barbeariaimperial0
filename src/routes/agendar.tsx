@@ -1,10 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { format, addDays, isBefore, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { CheckCircle2, Calendar as CalendarIcon, Clock, Scissors, ChevronLeft, Lock, AlertTriangle } from "lucide-react";
+import { CheckCircle2, Calendar as CalendarIcon, Clock, Scissors, ChevronLeft, ChevronRight, Lock, AlertTriangle } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,7 +39,19 @@ function getSlotsByDayOfWeek(date: Date): string[] {
   return [];
 }
 
-const NEXT_DAYS = Array.from({ length: 14 }, (_, i) => addDays(startOfDay(new Date()), i));
+function buildNextDays() {
+  const start = startOfDay(new Date());
+  const end = new Date(start);
+  end.setMonth(end.getMonth() + 2);
+  const days: Date[] = [];
+  let d = start;
+  while (d.getTime() <= end.getTime()) {
+    days.push(d);
+    d = addDays(d, 1);
+  }
+  return days;
+}
+const NEXT_DAYS = buildNextDays();
 const FIRST_AVAILABLE_DAY = NEXT_DAYS.find((d) => d.getDay() !== 0) ?? NEXT_DAYS[0];
 
 function AgendarPage() {
