@@ -53,22 +53,28 @@ export type Database = {
       clients: {
         Row: {
           created_at: string
+          email: string | null
           id: string
           name: string
+          notes: string | null
           phone: string
           surname: string
         }
         Insert: {
           created_at?: string
+          email?: string | null
           id?: string
           name: string
+          notes?: string | null
           phone: string
           surname: string
         }
         Update: {
           created_at?: string
+          email?: string | null
           id?: string
           name?: string
+          notes?: string | null
           phone?: string
           surname?: string
         }

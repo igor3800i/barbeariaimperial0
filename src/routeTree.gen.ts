@@ -21,6 +21,7 @@ import { Route as BarberProductsRouteImport } from './routes/barber.products'
 import { Route as BarberLoginRouteImport } from './routes/barber.login'
 import { Route as BarberFinancialRouteImport } from './routes/barber.financial'
 import { Route as BarberDashboardRouteImport } from './routes/barber.dashboard'
+import { Route as BarberClientsRouteImport } from './routes/barber.clients'
 import { Route as BarberAppointmentsRouteImport } from './routes/barber.appointments'
 import { Route as ApiPublicHooksMonthlyReportRouteImport } from './routes/api/public/hooks/monthly-report'
 
@@ -84,6 +85,11 @@ const BarberDashboardRoute = BarberDashboardRouteImport.update({
   path: '/barber/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BarberClientsRoute = BarberClientsRouteImport.update({
+  id: '/barber/clients',
+  path: '/barber/clients',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BarberAppointmentsRoute = BarberAppointmentsRouteImport.update({
   id: '/barber/appointments',
   path: '/barber/appointments',
@@ -105,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/produtos': typeof ProdutosRoute
   '/servicos': typeof ServicosRoute
   '/barber/appointments': typeof BarberAppointmentsRoute
+  '/barber/clients': typeof BarberClientsRoute
   '/barber/dashboard': typeof BarberDashboardRoute
   '/barber/financial': typeof BarberFinancialRoute
   '/barber/login': typeof BarberLoginRoute
@@ -121,6 +128,7 @@ export interface FileRoutesByTo {
   '/produtos': typeof ProdutosRoute
   '/servicos': typeof ServicosRoute
   '/barber/appointments': typeof BarberAppointmentsRoute
+  '/barber/clients': typeof BarberClientsRoute
   '/barber/dashboard': typeof BarberDashboardRoute
   '/barber/financial': typeof BarberFinancialRoute
   '/barber/login': typeof BarberLoginRoute
@@ -138,6 +146,7 @@ export interface FileRoutesById {
   '/produtos': typeof ProdutosRoute
   '/servicos': typeof ServicosRoute
   '/barber/appointments': typeof BarberAppointmentsRoute
+  '/barber/clients': typeof BarberClientsRoute
   '/barber/dashboard': typeof BarberDashboardRoute
   '/barber/financial': typeof BarberFinancialRoute
   '/barber/login': typeof BarberLoginRoute
@@ -156,6 +165,7 @@ export interface FileRouteTypes {
     | '/produtos'
     | '/servicos'
     | '/barber/appointments'
+    | '/barber/clients'
     | '/barber/dashboard'
     | '/barber/financial'
     | '/barber/login'
@@ -172,6 +182,7 @@ export interface FileRouteTypes {
     | '/produtos'
     | '/servicos'
     | '/barber/appointments'
+    | '/barber/clients'
     | '/barber/dashboard'
     | '/barber/financial'
     | '/barber/login'
@@ -188,6 +199,7 @@ export interface FileRouteTypes {
     | '/produtos'
     | '/servicos'
     | '/barber/appointments'
+    | '/barber/clients'
     | '/barber/dashboard'
     | '/barber/financial'
     | '/barber/login'
@@ -205,6 +217,7 @@ export interface RootRouteChildren {
   ProdutosRoute: typeof ProdutosRoute
   ServicosRoute: typeof ServicosRoute
   BarberAppointmentsRoute: typeof BarberAppointmentsRoute
+  BarberClientsRoute: typeof BarberClientsRoute
   BarberDashboardRoute: typeof BarberDashboardRoute
   BarberFinancialRoute: typeof BarberFinancialRoute
   BarberLoginRoute: typeof BarberLoginRoute
@@ -299,6 +312,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarberDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/barber/clients': {
+      id: '/barber/clients'
+      path: '/barber/clients'
+      fullPath: '/barber/clients'
+      preLoaderRoute: typeof BarberClientsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/barber/appointments': {
       id: '/barber/appointments'
       path: '/barber/appointments'
@@ -325,6 +345,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProdutosRoute: ProdutosRoute,
   ServicosRoute: ServicosRoute,
   BarberAppointmentsRoute: BarberAppointmentsRoute,
+  BarberClientsRoute: BarberClientsRoute,
   BarberDashboardRoute: BarberDashboardRoute,
   BarberFinancialRoute: BarberFinancialRoute,
   BarberLoginRoute: BarberLoginRoute,
