@@ -11,6 +11,7 @@ import { NotificationsBell } from "@/components/barber/notifications-bell";
 const NAV = [
   { to: "/barber/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/barber/appointments", label: "Agendamentos", icon: CalendarDays },
+  { to: "/barber/clients", label: "Clientes", icon: Users },
   { to: "/barber/products", label: "Produtos", icon: Package },
   { to: "/barber/services", label: "Serviços", icon: Scissors },
   { to: "/barber/financial", label: "Financeiro", icon: DollarSign },
