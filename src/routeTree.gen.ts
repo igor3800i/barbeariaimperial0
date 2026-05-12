@@ -23,7 +23,6 @@ import { Route as BarberFinancialRouteImport } from './routes/barber.financial'
 import { Route as BarberDashboardRouteImport } from './routes/barber.dashboard'
 import { Route as BarberClientsRouteImport } from './routes/barber.clients'
 import { Route as BarberAppointmentsRouteImport } from './routes/barber.appointments'
-import { Route as ApiPublicHooksMonthlyReportRouteImport } from './routes/api/public/hooks/monthly-report'
 
 const ServicosRoute = ServicosRouteImport.update({
   id: '/servicos',
@@ -95,12 +94,6 @@ const BarberAppointmentsRoute = BarberAppointmentsRouteImport.update({
   path: '/barber/appointments',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicHooksMonthlyReportRoute =
-  ApiPublicHooksMonthlyReportRouteImport.update({
-    id: '/api/public/hooks/monthly-report',
-    path: '/api/public/hooks/monthly-report',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -117,7 +110,6 @@ export interface FileRoutesByFullPath {
   '/barber/login': typeof BarberLoginRoute
   '/barber/products': typeof BarberProductsRoute
   '/barber/services': typeof BarberServicesRoute
-  '/api/public/hooks/monthly-report': typeof ApiPublicHooksMonthlyReportRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -134,7 +126,6 @@ export interface FileRoutesByTo {
   '/barber/login': typeof BarberLoginRoute
   '/barber/products': typeof BarberProductsRoute
   '/barber/services': typeof BarberServicesRoute
-  '/api/public/hooks/monthly-report': typeof ApiPublicHooksMonthlyReportRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -152,7 +143,6 @@ export interface FileRoutesById {
   '/barber/login': typeof BarberLoginRoute
   '/barber/products': typeof BarberProductsRoute
   '/barber/services': typeof BarberServicesRoute
-  '/api/public/hooks/monthly-report': typeof ApiPublicHooksMonthlyReportRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -171,7 +161,6 @@ export interface FileRouteTypes {
     | '/barber/login'
     | '/barber/products'
     | '/barber/services'
-    | '/api/public/hooks/monthly-report'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -188,7 +177,6 @@ export interface FileRouteTypes {
     | '/barber/login'
     | '/barber/products'
     | '/barber/services'
-    | '/api/public/hooks/monthly-report'
   id:
     | '__root__'
     | '/'
@@ -205,7 +193,6 @@ export interface FileRouteTypes {
     | '/barber/login'
     | '/barber/products'
     | '/barber/services'
-    | '/api/public/hooks/monthly-report'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -223,7 +210,6 @@ export interface RootRouteChildren {
   BarberLoginRoute: typeof BarberLoginRoute
   BarberProductsRoute: typeof BarberProductsRoute
   BarberServicesRoute: typeof BarberServicesRoute
-  ApiPublicHooksMonthlyReportRoute: typeof ApiPublicHooksMonthlyReportRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -326,13 +312,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarberAppointmentsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/hooks/monthly-report': {
-      id: '/api/public/hooks/monthly-report'
-      path: '/api/public/hooks/monthly-report'
-      fullPath: '/api/public/hooks/monthly-report'
-      preLoaderRoute: typeof ApiPublicHooksMonthlyReportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -351,8 +330,17 @@ const rootRouteChildren: RootRouteChildren = {
   BarberLoginRoute: BarberLoginRoute,
   BarberProductsRoute: BarberProductsRoute,
   BarberServicesRoute: BarberServicesRoute,
-  ApiPublicHooksMonthlyReportRoute: ApiPublicHooksMonthlyReportRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
