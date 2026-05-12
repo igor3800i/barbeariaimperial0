@@ -1,53 +1,133 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import type { Session, User } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable/index";
 
-const STORAGE_KEY = "imperial.barber.auth";
-const VALID_USER = "imperial2026";
-const VALID_PASS = "102030";
-
-type AuthState = {
-  isAuthenticated: boolean;
-  username: string | null;
-  login: (user: string, pass: string) => boolean;
-  logout: () => void;
+export type Profile = {
+  id: string;
+  full_name: string;
+  email: string;
+  phone: string | null;
+  avatar_url: string | null;
+  role: "admin" | "barber" | "client";
 };
 
-const AuthContext = createContext<AuthState | null>(null);
+type AuthState = {
+  loading: boolean;
+  session: Session | null;
+  user: User | null;
+  profile: Profile | null;
+  isAuthenticated: boolean;
+  signUp: (params: { email: string; password: string; fullName: string; phone?: string }) => Promise<{ error?: string }>;
+  signIn: (params: { email: string; password: string }) => Promise<{ error?: string }>;
+  signInWithGoogle: () => Promise<{ error?: string }>;
+  signOut: () => Promise<void>;
+  sendPasswordReset: (email: string) => Promise<{ error?: string }>;
+  refreshProfile: () => Promise<void>;
+};
+
+const Ctx = createContext<AuthState | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [username, setUsername] = useState<string | null>(null);
-  const [hydrated, setHydrated] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const loadProfile = useCallback(async (userId: string) => {
+    const { data } = await supabase
+      .from("profiles")
+      .select("id, full_name, email, phone, avatar_url, role")
+      .eq("id", userId)
+      .maybeSingle();
+    if (data) setProfile(data as Profile);
+  }, []);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) setUsername(stored);
-    } catch {}
-    setHydrated(true);
-  }, []);
+    // Set up listener BEFORE getSession (per Supabase recommendation)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, sess) => {
+      setSession(sess);
+      if (sess?.user) {
+        // Defer profile fetch to avoid recursive auth calls inside listener
+        setTimeout(() => loadProfile(sess.user.id), 0);
+      } else {
+        setProfile(null);
+      }
+    });
 
-  const login = useCallback((user: string, pass: string) => {
-    if (user === VALID_USER && pass === VALID_PASS) {
-      try { localStorage.setItem(STORAGE_KEY, user); } catch {}
-      setUsername(user);
-      return true;
-    }
-    return false;
-  }, []);
+    supabase.auth.getSession().then(({ data: { session: sess } }) => {
+      setSession(sess);
+      if (sess?.user) loadProfile(sess.user.id);
+      setLoading(false);
+    });
 
-  const logout = useCallback(() => {
-    try { localStorage.removeItem(STORAGE_KEY); } catch {}
-    setUsername(null);
-  }, []);
+    return () => subscription.unsubscribe();
+  }, [loadProfile]);
+
+  const signUp: AuthState["signUp"] = async ({ email, password, fullName, phone }) => {
+    const redirectTo = typeof window !== "undefined" ? window.location.origin : undefined;
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: redirectTo,
+        data: { full_name: fullName, phone: phone ?? null },
+      },
+    });
+    return error ? { error: error.message } : {};
+  };
+
+  const signIn: AuthState["signIn"] = async ({ email, password }) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    return error ? { error: error.message } : {};
+  };
+
+  const signInWithGoogle: AuthState["signInWithGoogle"] = async () => {
+    const redirect_uri = typeof window !== "undefined" ? window.location.origin : undefined;
+    const result = await lovable.auth.signInWithOAuth("google", { redirect_uri });
+    if (result.error) return { error: result.error.message ?? "Falha ao entrar com Google" };
+    return {};
+  };
+
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    setProfile(null);
+    setSession(null);
+  };
+
+  const sendPasswordReset: AuthState["sendPasswordReset"] = async (email) => {
+    const redirectTo =
+      typeof window !== "undefined" ? `${window.location.origin}/reset-password` : undefined;
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+    return error ? { error: error.message } : {};
+  };
+
+  const refreshProfile = useCallback(async () => {
+    if (session?.user) await loadProfile(session.user.id);
+  }, [session, loadProfile]);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated: !!username, username, login, logout }}>
-      {hydrated ? children : null}
-    </AuthContext.Provider>
+    <Ctx.Provider
+      value={{
+        loading,
+        session,
+        user: session?.user ?? null,
+        profile,
+        isAuthenticated: !!session?.user,
+        signUp,
+        signIn,
+        signInWithGoogle,
+        signOut,
+        sendPasswordReset,
+        refreshProfile,
+      }}
+    >
+      {children}
+    </Ctx.Provider>
   );
 }
 
 export function useAuth() {
-  const ctx = useContext(AuthContext);
+  const ctx = useContext(Ctx);
   if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
   return ctx;
 }

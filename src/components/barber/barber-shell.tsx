@@ -32,8 +32,8 @@ export function BarberShell({ title, children }: { title: string; children: Reac
 
   if (!auth.isAuthenticated) return null;
 
-  const handleLogout = () => {
-    auth.logout();
+  const handleLogout = async () => {
+    await auth.signOut();
     navigate({ to: "/barber/login" });
   };
 

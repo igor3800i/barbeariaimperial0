@@ -16,166 +16,350 @@ export type Database = {
     Tables: {
       appointments: {
         Row: {
-          client_name: string
-          client_phone: string
+          barber_id: string | null
+          client_id: string | null
           created_at: string
-          date: string
+          ends_at: string
           id: string
-          service: string
-          service_value: number
-          status: string
-          time: string
-        }
-        Insert: {
-          client_name: string
-          client_phone: string
-          created_at?: string
-          date: string
-          id?: string
-          service: string
-          service_value: number
-          status?: string
-          time: string
-        }
-        Update: {
-          client_name?: string
-          client_phone?: string
-          created_at?: string
-          date?: string
-          id?: string
-          service?: string
-          service_value?: number
-          status?: string
-          time?: string
-        }
-        Relationships: []
-      }
-      clients: {
-        Row: {
-          created_at: string
-          email: string | null
-          id: string
-          name: string
           notes: string | null
-          phone: string
-          surname: string
+          price_charged: number | null
+          scheduled_at: string
+          service_id: string | null
+          status: string
         }
         Insert: {
+          barber_id?: string | null
+          client_id?: string | null
           created_at?: string
-          email?: string | null
+          ends_at: string
           id?: string
-          name: string
           notes?: string | null
-          phone: string
-          surname: string
+          price_charged?: number | null
+          scheduled_at: string
+          service_id?: string | null
+          status?: string
         }
         Update: {
+          barber_id?: string | null
+          client_id?: string | null
           created_at?: string
-          email?: string | null
+          ends_at?: string
           id?: string
-          name?: string
           notes?: string | null
-          phone?: string
-          surname?: string
+          price_charged?: number | null
+          scheduled_at?: string
+          service_id?: string | null
+          status?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "appointments_barber_id_fkey"
+            columns: ["barber_id"]
+            isOneToOne: false
+            referencedRelation: "barbers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      barbers: {
+        Row: {
+          active: boolean
+          bio: string | null
+          commission_rate: number
+          created_at: string
+          display_name: string
+          id: string
+          instagram: string | null
+          photo_url: string | null
+          profile_id: string | null
+          specialty: string[] | null
+        }
+        Insert: {
+          active?: boolean
+          bio?: string | null
+          commission_rate?: number
+          created_at?: string
+          display_name?: string
+          id?: string
+          instagram?: string | null
+          photo_url?: string | null
+          profile_id?: string | null
+          specialty?: string[] | null
+        }
+        Update: {
+          active?: boolean
+          bio?: string | null
+          commission_rate?: number
+          created_at?: string
+          display_name?: string
+          id?: string
+          instagram?: string | null
+          photo_url?: string | null
+          profile_id?: string | null
+          specialty?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "barbers_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notifications: {
         Row: {
           created_at: string
-          description: string
           id: string
-          metadata: Json
+          message: string
           read: boolean
           title: string
           type: string
+          user_id: string
         }
         Insert: {
           created_at?: string
-          description: string
           id?: string
-          metadata?: Json
+          message: string
           read?: boolean
           title: string
-          type: string
+          type?: string
+          user_id: string
         }
         Update: {
           created_at?: string
-          description?: string
           id?: string
-          metadata?: Json
+          message?: string
           read?: boolean
           title?: string
           type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          appointment_id: string
+          created_at: string
+          id: string
+          method: string
+          paid_at: string | null
+          status: string
+        }
+        Insert: {
+          amount: number
+          appointment_id: string
+          created_at?: string
+          id?: string
+          method: string
+          paid_at?: string | null
+          status?: string
+        }
+        Update: {
+          amount?: number
+          appointment_id?: string
+          created_at?: string
+          id?: string
+          method?: string
+          paid_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          phone: string | null
+          role: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email: string
+          full_name?: string
+          id: string
+          phone?: string | null
+          role?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+          role?: string
         }
         Relationships: []
       }
-      products: {
+      reviews: {
         Row: {
-          active: boolean
+          appointment_id: string
+          barber_id: string
+          client_id: string
+          comment: string | null
           created_at: string
-          description: string | null
           id: string
-          image_url: string | null
-          name: string
-          price_cents: number
+          rating: number
         }
         Insert: {
-          active?: boolean
+          appointment_id: string
+          barber_id: string
+          client_id: string
+          comment?: string | null
           created_at?: string
-          description?: string | null
           id?: string
-          image_url?: string | null
-          name: string
-          price_cents: number
+          rating: number
         }
         Update: {
-          active?: boolean
+          appointment_id?: string
+          barber_id?: string
+          client_id?: string
+          comment?: string | null
           created_at?: string
-          description?: string | null
           id?: string
-          image_url?: string | null
-          name?: string
-          price_cents?: number
+          rating?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "reviews_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: true
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_barber_id_fkey"
+            columns: ["barber_id"]
+            isOneToOne: false
+            referencedRelation: "barbers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       services: {
         Row: {
           active: boolean
+          category: string | null
           created_at: string
           description: string | null
           duration_min: number
           id: string
+          image_url: string | null
           name: string
-          price_cents: number
+          price: number
         }
         Insert: {
           active?: boolean
+          category?: string | null
           created_at?: string
           description?: string | null
-          duration_min?: number
+          duration_min: number
           id?: string
+          image_url?: string | null
           name: string
-          price_cents: number
+          price: number
         }
         Update: {
           active?: boolean
+          category?: string | null
           created_at?: string
           description?: string | null
           duration_min?: number
           id?: string
+          image_url?: string | null
           name?: string
-          price_cents?: number
+          price?: number
         }
         Relationships: []
+      }
+      working_hours: {
+        Row: {
+          barber_id: string
+          created_at: string
+          day_of_week: number
+          end_time: string
+          id: string
+          is_day_off: boolean
+          start_time: string
+        }
+        Insert: {
+          barber_id: string
+          created_at?: string
+          day_of_week: number
+          end_time: string
+          id?: string
+          is_day_off?: boolean
+          start_time: string
+        }
+        Update: {
+          barber_id?: string
+          created_at?: string
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_day_off?: boolean
+          start_time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "working_hours_barber_id_fkey"
+            columns: ["barber_id"]
+            isOneToOne: false
+            referencedRelation: "barbers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      generate_monthly_report: { Args: never; Returns: undefined }
+      get_my_role: { Args: never; Returns: string }
     }
     Enums: {
       [_ in never]: never

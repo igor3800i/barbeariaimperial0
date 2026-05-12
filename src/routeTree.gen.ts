@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ServicosRouteImport } from './routes/servicos'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProdutosRouteImport } from './routes/produtos'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ContatoRouteImport } from './routes/contato'
@@ -23,11 +24,15 @@ import { Route as BarberFinancialRouteImport } from './routes/barber.financial'
 import { Route as BarberDashboardRouteImport } from './routes/barber.dashboard'
 import { Route as BarberClientsRouteImport } from './routes/barber.clients'
 import { Route as BarberAppointmentsRouteImport } from './routes/barber.appointments'
-import { Route as ApiPublicHooksMonthlyReportRouteImport } from './routes/api/public/hooks/monthly-report'
 
 const ServicosRoute = ServicosRouteImport.update({
   id: '/servicos',
   path: '/servicos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProdutosRoute = ProdutosRouteImport.update({
@@ -95,12 +100,6 @@ const BarberAppointmentsRoute = BarberAppointmentsRouteImport.update({
   path: '/barber/appointments',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicHooksMonthlyReportRoute =
-  ApiPublicHooksMonthlyReportRouteImport.update({
-    id: '/api/public/hooks/monthly-report',
-    path: '/api/public/hooks/monthly-report',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -109,6 +108,7 @@ export interface FileRoutesByFullPath {
   '/contato': typeof ContatoRoute
   '/login': typeof LoginRoute
   '/produtos': typeof ProdutosRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/servicos': typeof ServicosRoute
   '/barber/appointments': typeof BarberAppointmentsRoute
   '/barber/clients': typeof BarberClientsRoute
@@ -117,7 +117,6 @@ export interface FileRoutesByFullPath {
   '/barber/login': typeof BarberLoginRoute
   '/barber/products': typeof BarberProductsRoute
   '/barber/services': typeof BarberServicesRoute
-  '/api/public/hooks/monthly-report': typeof ApiPublicHooksMonthlyReportRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -126,6 +125,7 @@ export interface FileRoutesByTo {
   '/contato': typeof ContatoRoute
   '/login': typeof LoginRoute
   '/produtos': typeof ProdutosRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/servicos': typeof ServicosRoute
   '/barber/appointments': typeof BarberAppointmentsRoute
   '/barber/clients': typeof BarberClientsRoute
@@ -134,7 +134,6 @@ export interface FileRoutesByTo {
   '/barber/login': typeof BarberLoginRoute
   '/barber/products': typeof BarberProductsRoute
   '/barber/services': typeof BarberServicesRoute
-  '/api/public/hooks/monthly-report': typeof ApiPublicHooksMonthlyReportRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -144,6 +143,7 @@ export interface FileRoutesById {
   '/contato': typeof ContatoRoute
   '/login': typeof LoginRoute
   '/produtos': typeof ProdutosRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/servicos': typeof ServicosRoute
   '/barber/appointments': typeof BarberAppointmentsRoute
   '/barber/clients': typeof BarberClientsRoute
@@ -152,7 +152,6 @@ export interface FileRoutesById {
   '/barber/login': typeof BarberLoginRoute
   '/barber/products': typeof BarberProductsRoute
   '/barber/services': typeof BarberServicesRoute
-  '/api/public/hooks/monthly-report': typeof ApiPublicHooksMonthlyReportRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -163,6 +162,7 @@ export interface FileRouteTypes {
     | '/contato'
     | '/login'
     | '/produtos'
+    | '/reset-password'
     | '/servicos'
     | '/barber/appointments'
     | '/barber/clients'
@@ -171,7 +171,6 @@ export interface FileRouteTypes {
     | '/barber/login'
     | '/barber/products'
     | '/barber/services'
-    | '/api/public/hooks/monthly-report'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -180,6 +179,7 @@ export interface FileRouteTypes {
     | '/contato'
     | '/login'
     | '/produtos'
+    | '/reset-password'
     | '/servicos'
     | '/barber/appointments'
     | '/barber/clients'
@@ -188,7 +188,6 @@ export interface FileRouteTypes {
     | '/barber/login'
     | '/barber/products'
     | '/barber/services'
-    | '/api/public/hooks/monthly-report'
   id:
     | '__root__'
     | '/'
@@ -197,6 +196,7 @@ export interface FileRouteTypes {
     | '/contato'
     | '/login'
     | '/produtos'
+    | '/reset-password'
     | '/servicos'
     | '/barber/appointments'
     | '/barber/clients'
@@ -205,7 +205,6 @@ export interface FileRouteTypes {
     | '/barber/login'
     | '/barber/products'
     | '/barber/services'
-    | '/api/public/hooks/monthly-report'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -215,6 +214,7 @@ export interface RootRouteChildren {
   ContatoRoute: typeof ContatoRoute
   LoginRoute: typeof LoginRoute
   ProdutosRoute: typeof ProdutosRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   ServicosRoute: typeof ServicosRoute
   BarberAppointmentsRoute: typeof BarberAppointmentsRoute
   BarberClientsRoute: typeof BarberClientsRoute
@@ -223,7 +223,6 @@ export interface RootRouteChildren {
   BarberLoginRoute: typeof BarberLoginRoute
   BarberProductsRoute: typeof BarberProductsRoute
   BarberServicesRoute: typeof BarberServicesRoute
-  ApiPublicHooksMonthlyReportRoute: typeof ApiPublicHooksMonthlyReportRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -233,6 +232,13 @@ declare module '@tanstack/react-router' {
       path: '/servicos'
       fullPath: '/servicos'
       preLoaderRoute: typeof ServicosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/produtos': {
@@ -326,13 +332,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarberAppointmentsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/hooks/monthly-report': {
-      id: '/api/public/hooks/monthly-report'
-      path: '/api/public/hooks/monthly-report'
-      fullPath: '/api/public/hooks/monthly-report'
-      preLoaderRoute: typeof ApiPublicHooksMonthlyReportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -343,6 +342,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContatoRoute: ContatoRoute,
   LoginRoute: LoginRoute,
   ProdutosRoute: ProdutosRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   ServicosRoute: ServicosRoute,
   BarberAppointmentsRoute: BarberAppointmentsRoute,
   BarberClientsRoute: BarberClientsRoute,
@@ -351,18 +351,7 @@ const rootRouteChildren: RootRouteChildren = {
   BarberLoginRoute: BarberLoginRoute,
   BarberProductsRoute: BarberProductsRoute,
   BarberServicesRoute: BarberServicesRoute,
-  ApiPublicHooksMonthlyReportRoute: ApiPublicHooksMonthlyReportRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
