@@ -20,11 +20,11 @@ function ServicosPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("services")
-        .select("*")
+        .select("id, name, description, duration_min, price")
         .eq("active", true)
-        .order("price_cents");
+        .order("price");
       if (error) throw error;
-      return data;
+      return (data ?? []).map((s) => ({ ...s, price_cents: Math.round(Number(s.price) * 100) }));
     },
   });
 

@@ -1,8 +1,6 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Scissors, Calendar, MapPin, Star, Clock } from "lucide-react";
 import heroImg from "@/assets/hero-barbershop.jpg";
-import { useClientAuth } from "@/lib/client-auth-context";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -15,15 +13,6 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const { isAuthenticated } = useClientAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!isAuthenticated) navigate({ to: "/cadastro" });
-  }, [isAuthenticated, navigate]);
-
-  if (!isAuthenticated) return null;
-
   return (
     <>
       <section className="relative isolate overflow-hidden">

@@ -18,13 +18,8 @@ function ProdutosPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .eq("active", true)
-        .order("price_cents");
-      if (error) throw error;
-      return data;
+      // Products table removed in migration; will return empty until re-introduced
+      return [] as Array<{ id: string; name: string; description: string | null; price_cents: number }>;
     },
   });
 
