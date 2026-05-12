@@ -9,9 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { MapPin, Phone, Instagram } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
-import { ClientAuthProvider } from "@/lib/client-auth-context";
 import { AuthProvider } from "@/lib/auth-context";
-import { BarberStoreProvider } from "@/lib/barber-store";
 
 import appCss from "../styles.css?url";
 
@@ -68,8 +66,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:title", content: "Barbearia Imperial" },
       { name: "twitter:description", content: "Barbearia premium com agendamento online rápido. Corte, barba e combo em poucos cliques." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/ffc7fd94-3812-45b5-930e-e3245b3e33f8/id-preview-b5328ed6--49578355-fa65-40aa-875e-972602ae726b.lovable.app-1778111172721.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/ffc7fd94-3812-45b5-930e-e3245b3e33f8/id-preview-b5328ed6--49578355-fa65-40aa-875e-972602ae726b.lovable.app-1778111172721.png" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
@@ -163,18 +159,14 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <BarberStoreProvider>
-        <ClientAuthProvider>
-          <AuthProvider>
-            <div className="flex min-h-screen flex-col">
-              <Header />
-              <main className="flex-1"><Outlet /></main>
-              <Footer />
-            </div>
-            <Toaster richColors position="top-center" />
-          </AuthProvider>
-        </ClientAuthProvider>
-      </BarberStoreProvider>
+      <AuthProvider>
+        <div className="flex min-h-screen flex-col">
+          <Header />
+          <main className="flex-1"><Outlet /></main>
+          <Footer />
+        </div>
+        <Toaster richColors position="top-center" />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
