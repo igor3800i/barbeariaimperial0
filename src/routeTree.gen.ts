@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ServicosRouteImport } from './routes/servicos'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProdutosRouteImport } from './routes/produtos'
+import { Route as MinhaContaRouteImport } from './routes/minha-conta'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as CadastroRouteImport } from './routes/cadastro'
@@ -38,6 +39,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const ProdutosRoute = ProdutosRouteImport.update({
   id: '/produtos',
   path: '/produtos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MinhaContaRoute = MinhaContaRouteImport.update({
+  id: '/minha-conta',
+  path: '/minha-conta',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -107,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/cadastro': typeof CadastroRoute
   '/contato': typeof ContatoRoute
   '/login': typeof LoginRoute
+  '/minha-conta': typeof MinhaContaRoute
   '/produtos': typeof ProdutosRoute
   '/reset-password': typeof ResetPasswordRoute
   '/servicos': typeof ServicosRoute
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/cadastro': typeof CadastroRoute
   '/contato': typeof ContatoRoute
   '/login': typeof LoginRoute
+  '/minha-conta': typeof MinhaContaRoute
   '/produtos': typeof ProdutosRoute
   '/reset-password': typeof ResetPasswordRoute
   '/servicos': typeof ServicosRoute
@@ -142,6 +150,7 @@ export interface FileRoutesById {
   '/cadastro': typeof CadastroRoute
   '/contato': typeof ContatoRoute
   '/login': typeof LoginRoute
+  '/minha-conta': typeof MinhaContaRoute
   '/produtos': typeof ProdutosRoute
   '/reset-password': typeof ResetPasswordRoute
   '/servicos': typeof ServicosRoute
@@ -161,6 +170,7 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/contato'
     | '/login'
+    | '/minha-conta'
     | '/produtos'
     | '/reset-password'
     | '/servicos'
@@ -178,6 +188,7 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/contato'
     | '/login'
+    | '/minha-conta'
     | '/produtos'
     | '/reset-password'
     | '/servicos'
@@ -195,6 +206,7 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/contato'
     | '/login'
+    | '/minha-conta'
     | '/produtos'
     | '/reset-password'
     | '/servicos'
@@ -213,6 +225,7 @@ export interface RootRouteChildren {
   CadastroRoute: typeof CadastroRoute
   ContatoRoute: typeof ContatoRoute
   LoginRoute: typeof LoginRoute
+  MinhaContaRoute: typeof MinhaContaRoute
   ProdutosRoute: typeof ProdutosRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ServicosRoute: typeof ServicosRoute
@@ -246,6 +259,13 @@ declare module '@tanstack/react-router' {
       path: '/produtos'
       fullPath: '/produtos'
       preLoaderRoute: typeof ProdutosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/minha-conta': {
+      id: '/minha-conta'
+      path: '/minha-conta'
+      fullPath: '/minha-conta'
+      preLoaderRoute: typeof MinhaContaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -341,6 +361,7 @@ const rootRouteChildren: RootRouteChildren = {
   CadastroRoute: CadastroRoute,
   ContatoRoute: ContatoRoute,
   LoginRoute: LoginRoute,
+  MinhaContaRoute: MinhaContaRoute,
   ProdutosRoute: ProdutosRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ServicosRoute: ServicosRoute,

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Pencil, Plus, Trash2, User, X } from "lucide-react";
+import { Camera, Loader2, Pencil, Plus, Trash2, User, X } from "lucide-react";
 import { toast } from "sonner";
 import { BarberShell } from "@/components/barber/barber-shell";
 import { supabase } from "@/integrations/supabase/client";
@@ -179,8 +179,8 @@ function BarberModal({
           <Field label="Nome de exibição">
             <input value={form.display_name ?? ""} onChange={(e) => setForm({ ...form, display_name: e.target.value })} className="m-input" />
           </Field>
-          <Field label="Foto (URL)">
-            <input value={form.photo_url ?? ""} onChange={(e) => setForm({ ...form, photo_url: e.target.value })} className="m-input" />
+          <Field label="Foto">
+            <PhotoUpload value={form.photo_url ?? ""} onChange={(url) => setForm({ ...form, photo_url: url })} />
           </Field>
           <Field label="Instagram (sem @)">
             <input value={form.instagram ?? ""} onChange={(e) => setForm({ ...form, instagram: e.target.value })} className="m-input" />
@@ -354,3 +354,49 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     </label>
   );
 }
+
+function PhotoUpload({ value, onChange }: { value: string; onChange: (url: string) => void }) {
+  const ref = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  async function handleFile(file: File) {
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error } = await supabase.storage.from("barbers").upload(path, file, { upsert: false, cacheControl: "3600" });
+      if (error) throw error;
+      const { data } = supabase.storage.from("barbers").getPublicUrl(path);
+      onChange(data.publicUrl);
+      toast.success("Foto enviada");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-3">
+      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full bg-muted">
+        {value ? <img src={value} alt="" className="h-full w-full object-cover" /> : <User className="m-auto mt-5 h-6 w-6 text-muted-foreground" />}
+      </div>
+      <div className="flex-1 space-y-2">
+        <input value={value} onChange={(e) => onChange(e.target.value)} placeholder="URL ou enviar arquivo"
+          className="h-9 w-full rounded-md border border-border bg-input px-3 text-sm text-foreground outline-none focus:border-ring" />
+        <button
+          type="button"
+          onClick={() => ref.current?.click()}
+          disabled={uploading}
+          className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-card px-3 text-xs font-semibold text-foreground hover:bg-muted disabled:opacity-50"
+        >
+          {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
+          {uploading ? "Enviando..." : "Enviar foto"}
+        </button>
+        <input ref={ref} type="file" accept="image/*" className="hidden"
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ""; }} />
+      </div>
+    </div>
+  );
+}
+
