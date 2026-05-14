@@ -360,6 +360,7 @@ export type Database = {
     }
     Functions: {
       get_my_role: { Args: never; Returns: string }
+      is_staff: { Args: never; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

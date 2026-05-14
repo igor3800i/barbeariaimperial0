@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   LogOut, Menu, X, LayoutDashboard, CalendarDays, Users,
-  Package, Scissors, DollarSign, Settings, ChevronRight,
+  Scissors, DollarSign, Settings, ChevronRight,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
@@ -12,7 +12,6 @@ const NAV = [
   { to: "/barber/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/barber/appointments", label: "Agendamentos", icon: CalendarDays },
   { to: "/barber/clients", label: "Clientes", icon: Users },
-  { to: "/barber/products", label: "Produtos", icon: Package },
   { to: "/barber/services", label: "Serviços", icon: Scissors },
   { to: "/barber/financial", label: "Financeiro", icon: DollarSign },
   { to: "/barber/settings", label: "Configurações", icon: Settings },
