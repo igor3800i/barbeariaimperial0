@@ -18,7 +18,6 @@ import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as AgendarRouteImport } from './routes/agendar'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BarberServicesRouteImport } from './routes/barber.services'
-import { Route as BarberProductsRouteImport } from './routes/barber.products'
 import { Route as BarberLoginRouteImport } from './routes/barber.login'
 import { Route as BarberFinancialRouteImport } from './routes/barber.financial'
 import { Route as BarberDashboardRouteImport } from './routes/barber.dashboard'
@@ -70,11 +69,6 @@ const BarberServicesRoute = BarberServicesRouteImport.update({
   path: '/barber/services',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BarberProductsRoute = BarberProductsRouteImport.update({
-  id: '/barber/products',
-  path: '/barber/products',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const BarberLoginRoute = BarberLoginRouteImport.update({
   id: '/barber/login',
   path: '/barber/login',
@@ -115,7 +109,6 @@ export interface FileRoutesByFullPath {
   '/barber/dashboard': typeof BarberDashboardRoute
   '/barber/financial': typeof BarberFinancialRoute
   '/barber/login': typeof BarberLoginRoute
-  '/barber/products': typeof BarberProductsRoute
   '/barber/services': typeof BarberServicesRoute
 }
 export interface FileRoutesByTo {
@@ -132,7 +125,6 @@ export interface FileRoutesByTo {
   '/barber/dashboard': typeof BarberDashboardRoute
   '/barber/financial': typeof BarberFinancialRoute
   '/barber/login': typeof BarberLoginRoute
-  '/barber/products': typeof BarberProductsRoute
   '/barber/services': typeof BarberServicesRoute
 }
 export interface FileRoutesById {
@@ -150,7 +142,6 @@ export interface FileRoutesById {
   '/barber/dashboard': typeof BarberDashboardRoute
   '/barber/financial': typeof BarberFinancialRoute
   '/barber/login': typeof BarberLoginRoute
-  '/barber/products': typeof BarberProductsRoute
   '/barber/services': typeof BarberServicesRoute
 }
 export interface FileRouteTypes {
@@ -169,7 +160,6 @@ export interface FileRouteTypes {
     | '/barber/dashboard'
     | '/barber/financial'
     | '/barber/login'
-    | '/barber/products'
     | '/barber/services'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -186,7 +176,6 @@ export interface FileRouteTypes {
     | '/barber/dashboard'
     | '/barber/financial'
     | '/barber/login'
-    | '/barber/products'
     | '/barber/services'
   id:
     | '__root__'
@@ -203,7 +192,6 @@ export interface FileRouteTypes {
     | '/barber/dashboard'
     | '/barber/financial'
     | '/barber/login'
-    | '/barber/products'
     | '/barber/services'
   fileRoutesById: FileRoutesById
 }
@@ -221,7 +209,6 @@ export interface RootRouteChildren {
   BarberDashboardRoute: typeof BarberDashboardRoute
   BarberFinancialRoute: typeof BarberFinancialRoute
   BarberLoginRoute: typeof BarberLoginRoute
-  BarberProductsRoute: typeof BarberProductsRoute
   BarberServicesRoute: typeof BarberServicesRoute
 }
 
@@ -290,13 +277,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarberServicesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/barber/products': {
-      id: '/barber/products'
-      path: '/barber/products'
-      fullPath: '/barber/products'
-      preLoaderRoute: typeof BarberProductsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/barber/login': {
       id: '/barber/login'
       path: '/barber/login'
@@ -349,9 +329,18 @@ const rootRouteChildren: RootRouteChildren = {
   BarberDashboardRoute: BarberDashboardRoute,
   BarberFinancialRoute: BarberFinancialRoute,
   BarberLoginRoute: BarberLoginRoute,
-  BarberProductsRoute: BarberProductsRoute,
   BarberServicesRoute: BarberServicesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

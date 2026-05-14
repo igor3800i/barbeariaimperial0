@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   LogOut, Menu, X, LayoutDashboard, CalendarDays, Users,
-  Package, Scissors, DollarSign, Settings, ChevronRight,
+  Scissors, DollarSign, Settings, ChevronRight,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
