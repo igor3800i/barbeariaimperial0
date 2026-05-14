@@ -179,8 +179,8 @@ function BarberModal({
           <Field label="Nome de exibição">
             <input value={form.display_name ?? ""} onChange={(e) => setForm({ ...form, display_name: e.target.value })} className="m-input" />
           </Field>
-          <Field label="Foto (URL)">
-            <input value={form.photo_url ?? ""} onChange={(e) => setForm({ ...form, photo_url: e.target.value })} className="m-input" />
+          <Field label="Foto">
+            <PhotoUpload value={form.photo_url ?? ""} onChange={(url) => setForm({ ...form, photo_url: url })} />
           </Field>
           <Field label="Instagram (sem @)">
             <input value={form.instagram ?? ""} onChange={(e) => setForm({ ...form, instagram: e.target.value })} className="m-input" />
