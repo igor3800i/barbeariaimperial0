@@ -73,6 +73,23 @@ function MinhaContaPage() {
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("appointments").update({ status: "cancelled" }).eq("id", id);
       if (error) throw error;
+      const a = appts.find((x) => x.id === id);
+      if (a && user?.email) {
+        try {
+          const { sendTransactionalEmail } = await import("@/lib/email/send");
+          await sendTransactionalEmail({
+            templateName: "appointment-cancellation",
+            recipientEmail: user.email,
+            idempotencyKey: `appt-cancel-${id}`,
+            templateData: {
+              clientName: user.user_metadata?.full_name,
+              serviceName: (a as any).service?.name,
+              barberName: (a as any).barber?.display_name,
+              scheduledAt: new Date(a.scheduled_at).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }),
+            },
+          });
+        } catch (e) { console.warn("email send failed", e); }
+      }
     },
     onSuccess: () => {
       toast.success("Agendamento cancelado");

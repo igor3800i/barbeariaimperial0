@@ -161,7 +161,7 @@ function AgendarPage() {
       if (!selectedService || !selectedBarber || !slotIso) throw new Error("Dados incompletos.");
       const start = new Date(slotIso);
       const end = new Date(start.getTime() + selectedService.duration_min * 60_000);
-      const { error } = await supabase.from("appointments").insert({
+      const { data: inserted, error } = await supabase.from("appointments").insert({
         client_id: auth.user.id,
         barber_id: selectedBarber.id,
         service_id: selectedService.id,
@@ -169,8 +169,23 @@ function AgendarPage() {
         ends_at: end.toISOString(),
         price_charged: selectedService.price,
         status: "pending",
-      });
+      }).select("id").single();
       if (error) throw error;
+      try {
+        const { sendTransactionalEmail } = await import("@/lib/email/send");
+        await sendTransactionalEmail({
+          templateName: "appointment-confirmation",
+          recipientEmail: auth.user.email!,
+          idempotencyKey: `appt-confirm-${inserted.id}`,
+          templateData: {
+            clientName: auth.user.user_metadata?.full_name,
+            serviceName: selectedService.name,
+            barberName: selectedBarber.display_name,
+            scheduledAt: start.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }),
+            price: `R$ ${Number(selectedService.price).toFixed(2).replace(".", ",")}`,
+          },
+        });
+      } catch (e) { console.warn("email send failed", e); }
     },
     onSuccess: () => {
       toast.success("Agendamento confirmado!");
