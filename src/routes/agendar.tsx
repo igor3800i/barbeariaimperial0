@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Calendar, Clock, Scissors, User as UserIcon, Loader2, CheckCircle2 } from "lucide-react";
+import { Calendar, Clock, Scissors, User as UserIcon, Loader2, CheckCircle2, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { formatBRL } from "@/lib/format";
