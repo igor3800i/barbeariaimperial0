@@ -96,6 +96,21 @@ function AgendarPage() {
     },
   });
 
+  const { data: ratings } = useQuery({
+    queryKey: ["barber-ratings"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("reviews").select("barber_id, rating");
+      if (error) throw error;
+      const map = new Map<string, { sum: number; count: number }>();
+      for (const r of data as { barber_id: string; rating: number }[]) {
+        const cur = map.get(r.barber_id) ?? { sum: 0, count: 0 };
+        cur.sum += r.rating; cur.count += 1;
+        map.set(r.barber_id, cur);
+      }
+      return map;
+    },
+  });
+
   // Auto-pick the only barber
   useEffect(() => {
     if (!barberId && barbers && barbers.length === 1) setBarberId(barbers[0].id);
