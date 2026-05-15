@@ -229,9 +229,21 @@ function AgendarPage() {
                 <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-muted text-base font-bold text-foreground">
                   {b.photo_url ? <img src={b.photo_url} alt={b.display_name} className="h-full w-full object-cover" /> : b.display_name.charAt(0)}
                 </div>
-                <div>
+                <div className="min-w-0 flex-1">
                   <p className="font-semibold text-foreground">{b.display_name}</p>
-                  {b.bio && <p className="text-xs text-muted-foreground">{b.bio}</p>}
+                  {b.bio && <p className="truncate text-xs text-muted-foreground">{b.bio}</p>}
+                  {(() => {
+                    const r = ratings?.get(b.id);
+                    if (!r || r.count === 0) return <p className="mt-1 text-[11px] text-muted-foreground">Sem avaliações ainda</p>;
+                    const avg = r.sum / r.count;
+                    return (
+                      <p className="mt-1 inline-flex items-center gap-1 text-[11px] text-yellow-500">
+                        <Star className="h-3 w-3 fill-current" />
+                        <span className="font-semibold">{avg.toFixed(1)}</span>
+                        <span className="text-muted-foreground">({r.count})</span>
+                      </p>
+                    );
+                  })()}
                 </div>
               </button>
             ))}
