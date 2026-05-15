@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as ServicosRouteImport } from './routes/servicos'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProdutosRouteImport } from './routes/produtos'
@@ -31,6 +32,11 @@ import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lova
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
+const UnsubscribeRoute = UnsubscribeRouteImport.update({
+  id: '/unsubscribe',
+  path: '/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServicosRoute = ServicosRouteImport.update({
   id: '/servicos',
   path: '/servicos',
@@ -150,6 +156,7 @@ export interface FileRoutesByFullPath {
   '/produtos': typeof ProdutosRoute
   '/reset-password': typeof ResetPasswordRoute
   '/servicos': typeof ServicosRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/barber/appointments': typeof BarberAppointmentsRoute
   '/barber/clients': typeof BarberClientsRoute
   '/barber/dashboard': typeof BarberDashboardRoute
@@ -173,6 +180,7 @@ export interface FileRoutesByTo {
   '/produtos': typeof ProdutosRoute
   '/reset-password': typeof ResetPasswordRoute
   '/servicos': typeof ServicosRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/barber/appointments': typeof BarberAppointmentsRoute
   '/barber/clients': typeof BarberClientsRoute
   '/barber/dashboard': typeof BarberDashboardRoute
@@ -197,6 +205,7 @@ export interface FileRoutesById {
   '/produtos': typeof ProdutosRoute
   '/reset-password': typeof ResetPasswordRoute
   '/servicos': typeof ServicosRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/barber/appointments': typeof BarberAppointmentsRoute
   '/barber/clients': typeof BarberClientsRoute
   '/barber/dashboard': typeof BarberDashboardRoute
@@ -222,6 +231,7 @@ export interface FileRouteTypes {
     | '/produtos'
     | '/reset-password'
     | '/servicos'
+    | '/unsubscribe'
     | '/barber/appointments'
     | '/barber/clients'
     | '/barber/dashboard'
@@ -245,6 +255,7 @@ export interface FileRouteTypes {
     | '/produtos'
     | '/reset-password'
     | '/servicos'
+    | '/unsubscribe'
     | '/barber/appointments'
     | '/barber/clients'
     | '/barber/dashboard'
@@ -268,6 +279,7 @@ export interface FileRouteTypes {
     | '/produtos'
     | '/reset-password'
     | '/servicos'
+    | '/unsubscribe'
     | '/barber/appointments'
     | '/barber/clients'
     | '/barber/dashboard'
@@ -292,6 +304,7 @@ export interface RootRouteChildren {
   ProdutosRoute: typeof ProdutosRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ServicosRoute: typeof ServicosRoute
+  UnsubscribeRoute: typeof UnsubscribeRoute
   BarberAppointmentsRoute: typeof BarberAppointmentsRoute
   BarberClientsRoute: typeof BarberClientsRoute
   BarberDashboardRoute: typeof BarberDashboardRoute
@@ -308,6 +321,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/unsubscribe': {
+      id: '/unsubscribe'
+      path: '/unsubscribe'
+      fullPath: '/unsubscribe'
+      preLoaderRoute: typeof UnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/servicos': {
       id: '/servicos'
       path: '/servicos'
@@ -468,6 +488,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProdutosRoute: ProdutosRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ServicosRoute: ServicosRoute,
+  UnsubscribeRoute: UnsubscribeRoute,
   BarberAppointmentsRoute: BarberAppointmentsRoute,
   BarberClientsRoute: BarberClientsRoute,
   BarberDashboardRoute: BarberDashboardRoute,
@@ -484,3 +505,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
