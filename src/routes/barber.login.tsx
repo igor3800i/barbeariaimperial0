@@ -10,7 +10,7 @@ export const Route = createFileRoute("/barber/login")({
 function BarberLogin() {
   const auth = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -23,6 +23,9 @@ function BarberLogin() {
     e.preventDefault();
     setError("");
     setSubmitting(true);
+    const email = identifier.includes("@")
+      ? identifier.trim()
+      : `${identifier.trim().toLowerCase()}@barberimperial.internal`;
     const { error } = await auth.signIn({ email, password });
     setSubmitting(false);
     if (error) return setError(error);
