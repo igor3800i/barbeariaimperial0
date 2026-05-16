@@ -10,7 +10,7 @@ export const Route = createFileRoute("/barber/login")({
 function BarberLogin() {
   const auth = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -23,6 +23,9 @@ function BarberLogin() {
     e.preventDefault();
     setError("");
     setSubmitting(true);
+    const email = identifier.includes("@")
+      ? identifier.trim()
+      : `${identifier.trim().toLowerCase()}@barberimperial.internal`;
     const { error } = await auth.signIn({ email, password });
     setSubmitting(false);
     if (error) return setError(error);
@@ -39,8 +42,9 @@ function BarberLogin() {
         </div>
         <form onSubmit={submit} className="space-y-3">
           <input
-            type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
+            type="text" required value={identifier} onChange={(e) => setIdentifier(e.target.value)}
+            placeholder="Usuário"
+            autoCapitalize="none" autoCorrect="off" spellCheck={false}
             className="h-11 w-full rounded-lg border border-border bg-input px-3 text-foreground outline-none focus:border-ring"
           />
           <input
