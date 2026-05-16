@@ -42,8 +42,9 @@ function BarberLogin() {
         </div>
         <form onSubmit={submit} className="space-y-3">
           <input
-            type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
+            type="text" required value={identifier} onChange={(e) => setIdentifier(e.target.value)}
+            placeholder="Usuário"
+            autoCapitalize="none" autoCorrect="off" spellCheck={false}
             className="h-11 w-full rounded-lg border border-border bg-input px-3 text-foreground outline-none focus:border-ring"
           />
           <input
