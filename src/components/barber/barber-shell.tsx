@@ -4,7 +4,6 @@ import {
   LogOut, Menu, X, LayoutDashboard, CalendarDays, Users,
   Scissors, DollarSign, Settings, ChevronRight,
 } from "lucide-react";
-import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
 import { NotificationsBell } from "@/components/barber/notifications-bell";
 
@@ -17,22 +16,29 @@ const NAV = [
   { to: "/barber/settings", label: "Configurações", icon: Settings },
 ] as const;
 
+function isBarberAuthed() {
+  return typeof window !== "undefined" && localStorage.getItem("barberAuthenticated") === "true";
+}
+
 export function BarberShell({ title, children }: { title: string; children: ReactNode }) {
-  const auth = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [drawer, setDrawer] = useState(false);
+  const [authed, setAuthed] = useState<boolean>(() => isBarberAuthed());
 
   useEffect(() => {
-    if (!auth.isAuthenticated) navigate({ to: "/barber/login" });
-  }, [auth.isAuthenticated, navigate]);
+    const ok = isBarberAuthed();
+    setAuthed(ok);
+    if (!ok) navigate({ to: "/barber/login" });
+  }, [navigate, pathname]);
 
   useEffect(() => { setDrawer(false); }, [pathname]);
 
-  if (!auth.isAuthenticated) return null;
+  if (!authed) return null;
 
-  const handleLogout = async () => {
-    await auth.signOut();
+  const handleLogout = () => {
+    localStorage.removeItem("barberAuthenticated");
+    setAuthed(false);
     navigate({ to: "/barber/login" });
   };
 
