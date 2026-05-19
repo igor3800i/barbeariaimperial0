@@ -193,5 +193,35 @@
 
 @media (prefers-reduced-motion: reduce) {
   .hero-particle { animation: none; opacity: 0; }
+  .btn-shimmer::after { animation: none; }
+}
+
+.btn-shimmer {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.btn-shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0.35) 50%,
+    rgba(255, 255, 255, 0) 70%,
+    transparent 100%
+  );
+  transform: skewX(-20deg);
+  animation: btn-shimmer-sweep 3s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes btn-shimmer-sweep {
+  0% { left: -150%; }
+  60%, 100% { left: 150%; }
 }
 
