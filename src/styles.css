@@ -5,6 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @import url("https://fonts.googleapis.com/css2?family=Raleway:wght@200;300;400;500;600;700;800&display=swap");
+@import url("https://api.fontshare.com/v2/css?f[]=sreda@400,500,700&display=swap");
 
 :root {
   /* Dark theme by default — palette per spec */
@@ -40,9 +41,9 @@
   --sidebar-accent-foreground: oklch(0.9851 0.0000 89.8756);
   --sidebar-border: oklch(0.3132 0.0000 89.8756);
   --sidebar-ring: oklch(0.4365 0.1044 156.7556);
-  --font-sans: Raleway, ui-sans-serif, sans-serif, system-ui;
-  --font-serif: Raleway, ui-sans-serif, sans-serif, system-ui;
-  --font-mono: Raleway, ui-monospace, monospace;
+  --font-sans: Sreda, Raleway, ui-sans-serif, sans-serif, system-ui;
+  --font-serif: Sreda, Raleway, ui-sans-serif, sans-serif, system-ui;
+  --font-mono: Sreda, Raleway, ui-monospace, monospace;
   --radius: 0.5rem;
   --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
   --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
