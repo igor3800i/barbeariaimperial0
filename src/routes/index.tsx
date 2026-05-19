@@ -31,7 +31,7 @@ function Index() {
             Onde a tradição<br />encontra <span className="text-primary">modernidade.</span>
           </h1>
           <div className="mt-10 flex flex-wrap justify-center gap-3">
-            <Link to="/agendar" className="inline-flex items-center gap-2 rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-lg transition hover:opacity-90">
+            <Link to="/agendar" className="btn-shimmer inline-flex items-center gap-2 rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-lg transition hover:opacity-90">
               <Calendar className="h-4 w-4" /> Agendar agora
             </Link>
             <Link to="/servicos" className="inline-flex items-center gap-2 rounded-md border border-border bg-background/40 px-6 py-3 text-sm font-medium text-foreground backdrop-blur hover:bg-background/60">
@@ -66,7 +66,7 @@ function Index() {
         <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
           Escolha um serviço, selecione data e horário. Pronto.
         </p>
-        <Link to="/agendar" className="mt-8 inline-flex items-center gap-2 rounded-md bg-primary px-8 py-3 text-base font-semibold text-primary-foreground shadow-lg hover:opacity-90">
+        <Link to="/agendar" className="btn-shimmer mt-8 inline-flex items-center gap-2 rounded-md bg-primary px-8 py-3 text-base font-semibold text-primary-foreground shadow-lg hover:opacity-90">
           <Calendar className="h-5 w-5" /> Agendar horário
         </Link>
         <div className="mt-10 inline-flex items-center gap-2 text-sm text-muted-foreground">
