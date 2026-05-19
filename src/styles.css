@@ -161,3 +161,37 @@
     text-transform: none;
   }
 }
+
+@keyframes hero-particle-rise {
+  0% {
+    transform: translate3d(0, 100vh, 0);
+    opacity: 0;
+  }
+  10% {
+    opacity: var(--p-opacity, 0.4);
+  }
+  90% {
+    opacity: var(--p-opacity, 0.4);
+  }
+  100% {
+    transform: translate3d(var(--p-drift, 0), -10vh, 0);
+    opacity: 0;
+  }
+}
+
+.hero-particle {
+  position: absolute;
+  bottom: 0;
+  border-radius: 9999px;
+  background-color: #c9a84c;
+  box-shadow: 0 0 6px rgba(201, 168, 76, 0.6);
+  will-change: transform, opacity;
+  animation-name: hero-particle-rise;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-particle { animation: none; opacity: 0; }
+}
+
