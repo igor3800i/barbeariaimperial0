@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Scissors, Calendar, MapPin, Star, Clock } from "lucide-react";
 import heroImg from "@/assets/hero-barbershop.jpg";
 import { HeroParticles } from "@/components/hero-particles";
+import { Typewriter } from "@/components/typewriter";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -28,7 +29,7 @@ function Index() {
         <HeroParticles />
         <div className="mx-auto flex min-h-[85vh] max-w-4xl flex-col items-center justify-center px-4 py-24 text-center">
           <h1 className="text-4xl font-light leading-tight tracking-wide text-foreground md:text-6xl">
-            Onde a tradição<br />encontra <span className="text-primary">modernidade.</span>
+            <Typewriter text="Estilo afiado. Precisão na navalha." durationMs={2500} />
           </h1>
           <div className="mt-10 flex flex-wrap justify-center gap-3">
             <Link to="/agendar" className="btn-shimmer inline-flex items-center gap-2 rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-lg transition hover:opacity-90">

@@ -191,6 +191,11 @@
   animation-iteration-count: infinite;
 }
 
+@keyframes tw-blink {
+  0%, 50% { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-particle { animation: none; opacity: 0; }
   .btn-shimmer::after { animation: none; }
