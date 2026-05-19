@@ -18,24 +18,21 @@ function Index() {
       <section className="relative isolate overflow-hidden">
         <img
           src={heroImg}
-          alt="Interior da barbearia"
+          alt="Barbeiro da Barbearia Imperial em atendimento"
           width={1920}
           height={1280}
-          className="absolute inset-0 -z-10 h-full w-full object-cover opacity-50"
+          className="absolute inset-0 -z-10 h-full w-full object-cover opacity-60"
         />
         <div className="absolute inset-0 -z-10" style={{ background: "var(--gradient-hero)" }} />
-        <div className="mx-auto flex min-h-[80vh] max-w-6xl flex-col items-start justify-center px-4 py-24">
-          <h1 className="text-5xl leading-none text-foreground md:text-7xl">
-            Estilo afiado.<br />Precisão na <span className="text-primary">navalha.</span>
+        <div className="mx-auto flex min-h-[85vh] max-w-4xl flex-col items-center justify-center px-4 py-24 text-center">
+          <h1 className="text-4xl font-light leading-tight tracking-wide text-foreground md:text-6xl">
+            Onde a tradição<br />encontra <span className="text-primary">modernidade.</span>
           </h1>
-          <p className="mt-5 max-w-xl text-base text-muted-foreground md:text-lg">
-            Barbearia premium com agendamento online em segundos. Sem ligação, sem espera.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link to="/agendar" className="inline-flex items-center gap-2 rounded-md bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg transition hover:opacity-90">
+          <div className="mt-10 flex flex-wrap justify-center gap-3">
+            <Link to="/agendar" className="inline-flex items-center gap-2 rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-lg transition hover:opacity-90">
               <Calendar className="h-4 w-4" /> Agendar agora
             </Link>
-            <Link to="/servicos" className="inline-flex items-center gap-2 rounded-md border border-border bg-background/40 px-6 py-3 text-sm font-semibold text-foreground backdrop-blur hover:bg-background/60">
+            <Link to="/servicos" className="inline-flex items-center gap-2 rounded-md border border-border bg-background/40 px-6 py-3 text-sm font-medium text-foreground backdrop-blur hover:bg-background/60">
               Ver serviços
             </Link>
           </div>
