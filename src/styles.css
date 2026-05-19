@@ -5,7 +5,14 @@
 @custom-variant dark (&:is(.dark *));
 
 @import url("https://fonts.googleapis.com/css2?family=Raleway:wght@200;300;400;500;600;700;800&display=swap");
-@import url("https://api.fontshare.com/v2/css?f[]=sreda@400,500,700&display=swap");
+/* Sreda é uma fonte comercial e não está disponível em CDNs públicos.
+   Se você possui a licença, hospede os arquivos em /public/fonts/ e descomente:
+   @font-face {
+     font-family: "Sreda";
+     src: url("/fonts/Sreda-Regular.woff2") format("woff2");
+     font-weight: 400; font-style: normal; font-display: swap;
+   }
+*/
 
 :root {
   /* Dark theme by default — palette per spec */
