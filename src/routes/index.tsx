@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Scissors, Calendar, MapPin, Star, Clock } from "lucide-react";
 import heroImg from "@/assets/hero-barbershop.jpg";
+import { HeroParticles } from "@/components/hero-particles";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -24,6 +25,7 @@ function Index() {
           className="absolute inset-0 -z-10 h-full w-full object-cover opacity-60"
         />
         <div className="absolute inset-0 -z-10" style={{ background: "var(--gradient-hero)" }} />
+        <HeroParticles />
         <div className="mx-auto flex min-h-[85vh] max-w-4xl flex-col items-center justify-center px-4 py-24 text-center">
           <h1 className="text-4xl font-light leading-tight tracking-wide text-foreground md:text-6xl">
             Onde a tradição<br />encontra <span className="text-primary">modernidade.</span>
