@@ -4,6 +4,8 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@import url("https://fonts.googleapis.com/css2?family=Raleway:wght@200;300;400;500;600;700;800&display=swap");
+
 :root {
   /* Dark theme by default — palette per spec */
   --background: oklch(0.1822 0.0000 89.8756);          /* #121212 */
@@ -38,9 +40,9 @@
   --sidebar-accent-foreground: oklch(0.9851 0.0000 89.8756);
   --sidebar-border: oklch(0.3132 0.0000 89.8756);
   --sidebar-ring: oklch(0.4365 0.1044 156.7556);
-  --font-sans: Montserrat, ui-sans-serif, sans-serif, system-ui;
-  --font-serif: Montserrat, ui-sans-serif, sans-serif, system-ui;
-  --font-mono: Montserrat, ui-monospace, monospace;
+  --font-sans: Raleway, ui-sans-serif, sans-serif, system-ui;
+  --font-serif: Raleway, ui-sans-serif, sans-serif, system-ui;
+  --font-mono: Raleway, ui-monospace, monospace;
   --radius: 0.5rem;
   --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
   --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
@@ -154,8 +156,8 @@
   }
   h1, h2, h3, .font-display {
     font-family: var(--font-sans);
-    font-weight: 900;
-    letter-spacing: 0;
-    text-transform: uppercase;
+    font-weight: 300;
+    letter-spacing: 0.02em;
+    text-transform: none;
   }
 }
