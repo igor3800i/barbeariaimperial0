@@ -316,14 +316,18 @@ function AgendarPage() {
                 <button
                   key={s.iso}
                   disabled={s.disabled}
-                  onClick={() => setSlotIso(s.iso)}
+                  aria-label={s.booked ? `${s.label} — Ocupado` : s.past ? `${s.label} — Indisponível` : s.label}
+                  title={s.booked ? "Ocupado" : s.past ? "Indisponível" : undefined}
+                  onClick={() => !s.disabled && setSlotIso(s.iso)}
                   className={cn(
-                    "rounded-md border px-2 py-2 text-sm transition",
+                    "flex flex-col items-center justify-center rounded-md border px-2 py-2 text-sm transition",
                     slotIso === s.iso ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:border-primary/60",
-                    s.disabled && "pointer-events-none opacity-30 line-through",
+                    s.disabled && "pointer-events-none cursor-not-allowed opacity-40",
+                    s.booked && "line-through",
                   )}
                 >
-                  {s.label}
+                  <span>{s.label}</span>
+                  {s.booked && <span className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Ocupado</span>}
                 </button>
               ))}
             </div>
