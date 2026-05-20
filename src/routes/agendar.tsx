@@ -53,15 +53,17 @@ function buildSlots(wh: WH | undefined, taken: Array<{ start: Date; end: Date }>
   const end = new Date(dayStart); end.setHours(eh, em, 0, 0);
   const now = new Date();
 
-  const slots: { iso: string; label: string; disabled: boolean }[] = [];
+  const slots: { iso: string; label: string; disabled: boolean; booked: boolean; past: boolean }[] = [];
   for (let t = new Date(start); t.getTime() + durationMin * 60_000 <= end.getTime(); t = new Date(t.getTime() + SLOT_STEP_MIN * 60_000)) {
     const slotEnd = new Date(t.getTime() + durationMin * 60_000);
-    const overlaps = taken.some((a) => t < a.end && slotEnd > a.start);
+    const booked = taken.some((a) => t < a.end && slotEnd > a.start);
     const past = t < now;
     slots.push({
       iso: t.toISOString(),
       label: `${String(t.getHours()).padStart(2, "0")}:${String(t.getMinutes()).padStart(2, "0")}`,
-      disabled: overlaps || past,
+      disabled: booked || past,
+      booked,
+      past,
     });
   }
   return slots;
