@@ -29,8 +29,9 @@ function CadastroPage() {
     if (fullName.trim().length < 2) return toast.error("Informe seu nome completo.");
     setSubmitting(true);
     const { error } = await supabase.from("profiles").insert({
+      id: crypto.randomUUID(),
       full_name: fullName.trim(),
-      email: email || null,
+      email: email || "",
       phone: phone || null,
       role: "client",
     });
