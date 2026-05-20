@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -80,13 +80,14 @@ function AgendarPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
 
-  // Auth via localStorage
-  const [localClient, setLocalClient] = useState<LocalClient | null>(null);
-  useEffect(() => {
+  // Auth via localStorage — leitura direta e síncrona
+  const localClient = useMemo<LocalClient | null>(() => {
     try {
       const raw = localStorage.getItem("imperial.client");
-      if (raw) setLocalClient(JSON.parse(raw));
-    } catch {}
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
   }, []);
   const isAuthenticated = !!localClient;
 
@@ -137,10 +138,6 @@ function AgendarPage() {
     },
   });
 
-  useEffect(() => {
-    if (!barberId && barbers && barbers.length === 1) setBarberId(barbers[0].id);
-  }, [barbers, barberId]);
-
   const { data: workingHours } = useQuery({
     queryKey: ["working-hours", barberId],
     enabled: !!barberId,
@@ -176,6 +173,10 @@ function AgendarPage() {
   const selectedService = services?.find((s) => s.id === serviceId);
   const selectedBarber = barbers?.find((b) => b.id === barberId);
 
+  // Auto-pick barbeiro único
+  const resolvedBarberId = barberId ?? (barbers?.length === 1 ? barbers[0].id : undefined);
+  const resolvedBarber = barbers?.find((b) => b.id === resolvedBarberId);
+
   const slots = useMemo(() => {
     if (!dateKey || !selectedService || !workingHours) return [];
     const dow = new Date(`${dateKey}T00:00:00`).getDay();
@@ -186,9 +187,9 @@ function AgendarPage() {
   const bookMut = useMutation({
     mutationFn: async () => {
       if (!localClient) throw new Error("Você precisa estar logado.");
-      if (!selectedService || !selectedBarber || !slotIso) throw new Error("Dados incompletos.");
+      if (!selectedService || !resolvedBarber || !slotIso) throw new Error("Dados incompletos.");
 
-      // Busca o client_id no profiles pelo telefone
+      // Busca client_id pelo telefone
       let clientId: string | null = null;
       if (localClient.clientPhone) {
         const { data: profile } = await supabase
@@ -203,7 +204,7 @@ function AgendarPage() {
       const end = new Date(start.getTime() + selectedService.duration_min * 60_000);
       const { error } = await supabase.from("appointments").insert({
         client_id: clientId,
-        barber_id: selectedBarber.id,
+        barber_id: resolvedBarber.id,
         service_id: selectedService.id,
         scheduled_at: start.toISOString(),
         ends_at: end.toISOString(),
@@ -221,7 +222,7 @@ function AgendarPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const canBook = !!serviceId && !!barberId && !!slotIso && isAuthenticated;
+  const canBook = !!serviceId && !!resolvedBarberId && !!slotIso && isAuthenticated;
 
   return (
     <section className="mx-auto max-w-4xl px-4 py-10">
@@ -230,7 +231,7 @@ function AgendarPage() {
         <p className="mt-2 text-muted-foreground">Escolha serviço, barbeiro, dia e horário.</p>
       </header>
 
-      {/* STEP 1 — Service */}
+      {/* STEP 1 — Serviço */}
       <Step n={1} title="ESCOLHA O SERVIÇO" icon={<Scissors className="h-4 w-4" />}>
         <div className="grid gap-3 sm:grid-cols-2">
           {(services ?? []).map((s) => (
@@ -259,8 +260,8 @@ function AgendarPage() {
         </div>
       </Step>
 
-      {/* STEP 2 — Barber */}
-      {serviceId && (
+      {/* STEP 2 — Barbeiro (esconde se só tiver um) */}
+      {serviceId && (barbers ?? []).length > 1 && (
         <Step n={2} title="ESCOLHA O BARBEIRO" icon={<UserIcon className="h-4 w-4" />}>
           <div className="grid gap-3 sm:grid-cols-2">
             {(barbers ?? []).map((b) => (
@@ -272,7 +273,9 @@ function AgendarPage() {
                 }}
                 className={cn(
                   "flex items-center gap-3 rounded-lg border p-4 text-left transition",
-                  barberId === b.id ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/60",
+                  resolvedBarberId === b.id
+                    ? "border-primary bg-primary/10"
+                    : "border-border bg-card hover:border-primary/60",
                 )}
               >
                 <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-muted text-base font-bold text-foreground">
@@ -305,9 +308,9 @@ function AgendarPage() {
         </Step>
       )}
 
-      {/* STEP 3 — Date */}
-      {barberId && (
-        <Step n={3} title="ESCOLHA O DIA" icon={<Calendar className="h-4 w-4" />}>
+      {/* STEP 3 — Dia */}
+      {resolvedBarberId && (
+        <Step n={(barbers ?? []).length > 1 ? 3 : 2} title="ESCOLHA O DIA" icon={<Calendar className="h-4 w-4" />}>
           <div className="relative">
             <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-background to-transparent" />
             <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-background to-transparent" />
@@ -347,9 +350,9 @@ function AgendarPage() {
         </Step>
       )}
 
-      {/* STEP 4 — Time */}
+      {/* STEP 4 — Horário */}
       {dateKey && (
-        <Step n={4} title="ESCOLHA O HORÁRIO" icon={<Clock className="h-4 w-4" />}>
+        <Step n={(barbers ?? []).length > 1 ? 4 : 3} title="ESCOLHA O HORÁRIO" icon={<Clock className="h-4 w-4" />}>
           {slots.length === 0 ? (
             <p className="text-sm text-muted-foreground">Nenhum horário disponível neste dia.</p>
           ) : (
@@ -383,8 +386,8 @@ function AgendarPage() {
         </Step>
       )}
 
-      {/* CONFIRMATION */}
-      {slotIso && selectedService && selectedBarber && (
+      {/* RESUMO */}
+      {slotIso && selectedService && resolvedBarber && (
         <div className="mt-8 rounded-xl border border-primary/40 bg-primary/5 p-6">
           <h2 className="font-display text-xl text-foreground">Resumo</h2>
           <ul className="mt-3 space-y-1 text-sm text-foreground">
@@ -393,7 +396,7 @@ function AgendarPage() {
               {formatBRL(Math.round(Number(selectedService.price) * 100))})
             </li>
             <li>
-              <strong>Barbeiro:</strong> {selectedBarber.display_name}
+              <strong>Barbeiro:</strong> {resolvedBarber.display_name}
             </li>
             <li>
               <strong>Quando:</strong>{" "}
