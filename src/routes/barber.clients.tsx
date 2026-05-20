@@ -81,14 +81,16 @@ function ClientsContent() {
           {clients.map((c) => (
             <li key={c.id} className="rounded-lg border border-border bg-card p-4">
               <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
+                <div className="min-w-0 space-y-1">
                   <p className="truncate font-semibold text-foreground">{c.full_name}</p>
-                  <div className="mt-1 flex flex-wrap gap-3 text-xs text-muted-foreground">
-                    <span className="inline-flex items-center gap-1"><Mail className="h-3 w-3" />{c.email}</span>
-                    {c.phone && <span className="inline-flex items-center gap-1"><Phone className="h-3 w-3" />{c.phone}</span>}
-                  </div>
+                  <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                    <Mail className="h-3 w-3" />{c.email || "—"}
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                    <Phone className="h-3 w-3" />{c.phone || "Sem telefone"}
+                  </span>
                 </div>
-                <div className="text-right text-xs text-muted-foreground">
+                <div className="text-right text-xs text-muted-foreground shrink-0">
                   <p><strong className="text-foreground">{c.visits}</strong> visitas</p>
                   <p>{formatBRL(Math.round(c.spent * 100))}</p>
                   {c.lastAt && <p>último: {new Date(c.lastAt).toLocaleDateString("pt-BR")}</p>}
