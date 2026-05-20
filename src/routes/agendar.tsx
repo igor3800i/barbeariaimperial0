@@ -5,7 +5,6 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { Calendar, Clock, Scissors, User as UserIcon, Loader2, CheckCircle2, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/lib/auth-context";
 import { formatBRL } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -23,10 +22,11 @@ export const Route = createFileRoute("/agendar")({
 type Service = { id: string; name: string; price: number; duration_min: number; description: string | null };
 type Barber = { id: string; display_name: string; bio: string | null; photo_url: string | null };
 type WH = { day_of_week: number; start_time: string; end_time: string; is_day_off: boolean };
+type LocalClient = { clientName: string; clientPhone: string };
 
 const DAY_LABELS = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"];
 const MONTH_LABELS = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
-const SLOT_STEP_MIN = 30;
+const SLOT_STEP_MIN = 60;
 
 function buildDateRange(days = 60): Date[] {
   const arr: Date[] = [];
@@ -49,12 +49,18 @@ function buildSlots(wh: WH | undefined, taken: Array<{ start: Date; end: Date }>
   const [sh, sm] = wh.start_time.split(":").map(Number);
   const [eh, em] = wh.end_time.split(":").map(Number);
   const dayStart = new Date(`${dayKey}T00:00:00`);
-  const start = new Date(dayStart); start.setHours(sh, sm, 0, 0);
-  const end = new Date(dayStart); end.setHours(eh, em, 0, 0);
+  const start = new Date(dayStart);
+  start.setHours(sh, sm, 0, 0);
+  const end = new Date(dayStart);
+  end.setHours(eh, em, 0, 0);
   const now = new Date();
 
   const slots: { iso: string; label: string; disabled: boolean; booked: boolean; past: boolean }[] = [];
-  for (let t = new Date(start); t.getTime() + durationMin * 60_000 <= end.getTime(); t = new Date(t.getTime() + SLOT_STEP_MIN * 60_000)) {
+  for (
+    let t = new Date(start);
+    t.getTime() + durationMin * 60_000 <= end.getTime();
+    t = new Date(t.getTime() + SLOT_STEP_MIN * 60_000)
+  ) {
     const slotEnd = new Date(t.getTime() + durationMin * 60_000);
     const booked = taken.some((a) => t < a.end && slotEnd > a.start);
     const past = t < now;
@@ -72,8 +78,17 @@ function buildSlots(wh: WH | undefined, taken: Array<{ start: Date; end: Date }>
 function AgendarPage() {
   const search = Route.useSearch();
   const navigate = useNavigate();
-  const auth = useAuth();
   const qc = useQueryClient();
+
+  // Auth via localStorage
+  const [localClient, setLocalClient] = useState<LocalClient | null>(null);
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("imperial.client");
+      if (raw) setLocalClient(JSON.parse(raw));
+    } catch {}
+  }, []);
+  const isAuthenticated = !!localClient;
 
   const [serviceId, setServiceId] = useState<string | undefined>(search.service);
   const [barberId, setBarberId] = useState<string | undefined>(search.barber);
@@ -83,7 +98,11 @@ function AgendarPage() {
   const { data: services } = useQuery({
     queryKey: ["services-active"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("services").select("id, name, price, duration_min, description").eq("active", true).order("price");
+      const { data, error } = await supabase
+        .from("services")
+        .select("id, name, price, duration_min, description")
+        .eq("active", true)
+        .order("price");
       if (error) throw error;
       return data as Service[];
     },
@@ -92,7 +111,11 @@ function AgendarPage() {
   const { data: barbers } = useQuery({
     queryKey: ["barbers-active"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("barbers").select("id, display_name, bio, photo_url").eq("active", true).order("display_name");
+      const { data, error } = await supabase
+        .from("barbers")
+        .select("id, display_name, bio, photo_url")
+        .eq("active", true)
+        .order("display_name");
       if (error) throw error;
       return data as Barber[];
     },
@@ -106,14 +129,14 @@ function AgendarPage() {
       const map = new Map<string, { sum: number; count: number }>();
       for (const r of data as { barber_id: string; rating: number }[]) {
         const cur = map.get(r.barber_id) ?? { sum: 0, count: 0 };
-        cur.sum += r.rating; cur.count += 1;
+        cur.sum += r.rating;
+        cur.count += 1;
         map.set(r.barber_id, cur);
       }
       return map;
     },
   });
 
-  // Auto-pick the only barber
   useEffect(() => {
     if (!barberId && barbers && barbers.length === 1) setBarberId(barbers[0].id);
   }, [barbers, barberId]);
@@ -122,7 +145,10 @@ function AgendarPage() {
     queryKey: ["working-hours", barberId],
     enabled: !!barberId,
     queryFn: async () => {
-      const { data, error } = await supabase.from("working_hours").select("day_of_week, start_time, end_time, is_day_off").eq("barber_id", barberId!);
+      const { data, error } = await supabase
+        .from("working_hours")
+        .select("day_of_week, start_time, end_time, is_day_off")
+        .eq("barber_id", barberId!);
       if (error) throw error;
       return data as WH[];
     },
@@ -159,35 +185,32 @@ function AgendarPage() {
 
   const bookMut = useMutation({
     mutationFn: async () => {
-      if (!auth.user) throw new Error("Você precisa estar logado.");
+      if (!localClient) throw new Error("Você precisa estar logado.");
       if (!selectedService || !selectedBarber || !slotIso) throw new Error("Dados incompletos.");
+
+      // Busca o client_id no profiles pelo telefone
+      let clientId: string | null = null;
+      if (localClient.clientPhone) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("phone", localClient.clientPhone)
+          .maybeSingle();
+        clientId = profile?.id ?? null;
+      }
+
       const start = new Date(slotIso);
       const end = new Date(start.getTime() + selectedService.duration_min * 60_000);
-      const { data: inserted, error } = await supabase.from("appointments").insert({
-        client_id: auth.user.id,
+      const { error } = await supabase.from("appointments").insert({
+        client_id: clientId,
         barber_id: selectedBarber.id,
         service_id: selectedService.id,
         scheduled_at: start.toISOString(),
         ends_at: end.toISOString(),
         price_charged: selectedService.price,
-        status: "pending",
-      }).select("id").single();
+        status: "confirmed",
+      });
       if (error) throw error;
-      try {
-        const { sendTransactionalEmail } = await import("@/lib/email/send");
-        await sendTransactionalEmail({
-          templateName: "appointment-confirmation",
-          recipientEmail: auth.user.email!,
-          idempotencyKey: `appt-confirm-${inserted.id}`,
-          templateData: {
-            clientName: auth.user.user_metadata?.full_name,
-            serviceName: selectedService.name,
-            barberName: selectedBarber.display_name,
-            scheduledAt: start.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }),
-            price: `R$ ${Number(selectedService.price).toFixed(2).replace(".", ",")}`,
-          },
-        });
-      } catch (e) { console.warn("email send failed", e); }
     },
     onSuccess: () => {
       toast.success("Agendamento confirmado!");
@@ -198,7 +221,7 @@ function AgendarPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const canBook = !!serviceId && !!barberId && !!slotIso && auth.isAuthenticated;
+  const canBook = !!serviceId && !!barberId && !!slotIso && isAuthenticated;
 
   return (
     <section className="mx-auto max-w-4xl px-4 py-10">
@@ -213,7 +236,10 @@ function AgendarPage() {
           {(services ?? []).map((s) => (
             <button
               key={s.id}
-              onClick={() => { setServiceId(s.id); setSlotIso(undefined); }}
+              onClick={() => {
+                setServiceId(s.id);
+                setSlotIso(undefined);
+              }}
               className={cn(
                 "flex flex-col items-start rounded-lg border p-4 text-left transition",
                 serviceId === s.id ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/60",
@@ -223,7 +249,10 @@ function AgendarPage() {
               {s.description && <span className="mt-1 text-xs text-muted-foreground">{s.description}</span>}
               <span className="mt-2 flex items-center gap-3 text-sm">
                 <span className="font-display text-primary">{formatBRL(Math.round(Number(s.price) * 100))}</span>
-                <span className="inline-flex items-center gap-1 text-muted-foreground"><Clock className="h-3 w-3" />{s.duration_min}min</span>
+                <span className="inline-flex items-center gap-1 text-muted-foreground">
+                  <Clock className="h-3 w-3" />
+                  {s.duration_min}min
+                </span>
               </span>
             </button>
           ))}
@@ -237,21 +266,29 @@ function AgendarPage() {
             {(barbers ?? []).map((b) => (
               <button
                 key={b.id}
-                onClick={() => { setBarberId(b.id); setSlotIso(undefined); }}
+                onClick={() => {
+                  setBarberId(b.id);
+                  setSlotIso(undefined);
+                }}
                 className={cn(
                   "flex items-center gap-3 rounded-lg border p-4 text-left transition",
                   barberId === b.id ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/60",
                 )}
               >
                 <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-muted text-base font-bold text-foreground">
-                  {b.photo_url ? <img src={b.photo_url} alt={b.display_name} className="h-full w-full object-cover" /> : b.display_name.charAt(0)}
+                  {b.photo_url ? (
+                    <img src={b.photo_url} alt={b.display_name} className="h-full w-full object-cover" />
+                  ) : (
+                    b.display_name.charAt(0)
+                  )}
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold text-foreground">{b.display_name}</p>
                   {b.bio && <p className="truncate text-xs text-muted-foreground">{b.bio}</p>}
                   {(() => {
                     const r = ratings?.get(b.id);
-                    if (!r || r.count === 0) return <p className="mt-1 text-[11px] text-muted-foreground">Sem avaliações ainda</p>;
+                    if (!r || r.count === 0)
+                      return <p className="mt-1 text-[11px] text-muted-foreground">Sem avaliações ainda</p>;
                     const avg = r.sum / r.count;
                     return (
                       <p className="mt-1 inline-flex items-center gap-1 text-[11px] text-yellow-500">
@@ -286,10 +323,15 @@ function AgendarPage() {
                   <button
                     key={key}
                     disabled={isOff}
-                    onClick={() => { setDateKey(key); setSlotIso(undefined); }}
+                    onClick={() => {
+                      setDateKey(key);
+                      setSlotIso(undefined);
+                    }}
                     className={cn(
                       "flex min-w-[64px] shrink-0 flex-col items-center rounded-lg border px-2 py-2 text-xs transition",
-                      selected ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:border-primary/60",
+                      selected
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-card text-foreground hover:border-primary/60",
                       isOff && "pointer-events-none opacity-40",
                       !selected && isToday && "ring-1 ring-primary",
                     )}
@@ -321,13 +363,19 @@ function AgendarPage() {
                   onClick={() => !s.disabled && setSlotIso(s.iso)}
                   className={cn(
                     "flex flex-col items-center justify-center rounded-md border px-2 py-2 text-sm transition",
-                    slotIso === s.iso ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:border-primary/60",
+                    slotIso === s.iso
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-card text-foreground hover:border-primary/60",
                     s.disabled && "pointer-events-none cursor-not-allowed opacity-40",
                     s.booked && "line-through",
                   )}
                 >
                   <span>{s.label}</span>
-                  {s.booked && <span className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Ocupado</span>}
+                  {s.booked && (
+                    <span className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      Ocupado
+                    </span>
+                  )}
                 </button>
               ))}
             </div>
@@ -340,17 +388,41 @@ function AgendarPage() {
         <div className="mt-8 rounded-xl border border-primary/40 bg-primary/5 p-6">
           <h2 className="font-display text-xl text-foreground">Resumo</h2>
           <ul className="mt-3 space-y-1 text-sm text-foreground">
-            <li><strong>Serviço:</strong> {selectedService.name} ({formatBRL(Math.round(Number(selectedService.price) * 100))})</li>
-            <li><strong>Barbeiro:</strong> {selectedBarber.display_name}</li>
-            <li><strong>Quando:</strong> {new Date(slotIso).toLocaleString("pt-BR", { weekday: "long", day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit" })}</li>
+            <li>
+              <strong>Serviço:</strong> {selectedService.name} (
+              {formatBRL(Math.round(Number(selectedService.price) * 100))})
+            </li>
+            <li>
+              <strong>Barbeiro:</strong> {selectedBarber.display_name}
+            </li>
+            <li>
+              <strong>Quando:</strong>{" "}
+              {new Date(slotIso).toLocaleString("pt-BR", {
+                weekday: "long",
+                day: "2-digit",
+                month: "long",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </li>
           </ul>
 
-          {!auth.isAuthenticated ? (
+          {!isAuthenticated ? (
             <div className="mt-5 rounded-md border border-border bg-card p-4 text-sm">
               <p className="text-muted-foreground">Para confirmar, faça login ou crie sua conta.</p>
               <div className="mt-3 flex gap-2">
-                <Link to="/login" className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground">Entrar</Link>
-                <Link to="/cadastro" className="inline-flex h-10 items-center justify-center rounded-md border border-border px-4 text-sm font-semibold text-foreground">Criar conta</Link>
+                <Link
+                  to="/login"
+                  className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground"
+                >
+                  Entrar
+                </Link>
+                <Link
+                  to="/cadastro"
+                  className="inline-flex h-10 items-center justify-center rounded-md border border-border px-4 text-sm font-semibold text-foreground"
+                >
+                  Criar conta
+                </Link>
               </div>
             </div>
           ) : (
@@ -369,11 +441,23 @@ function AgendarPage() {
   );
 }
 
-function Step({ n, title, icon, children }: { n: number; title: string; icon: React.ReactNode; children: React.ReactNode }) {
+function Step({
+  n,
+  title,
+  icon,
+  children,
+}: {
+  n: number;
+  title: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
     <section className="mt-8">
       <h2 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-foreground">
-        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">{n}</span>
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
+          {n}
+        </span>
         {icon} {title}
       </h2>
       {children}
