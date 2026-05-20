@@ -53,15 +53,17 @@ function buildSlots(wh: WH | undefined, taken: Array<{ start: Date; end: Date }>
   const end = new Date(dayStart); end.setHours(eh, em, 0, 0);
   const now = new Date();
 
-  const slots: { iso: string; label: string; disabled: boolean }[] = [];
+  const slots: { iso: string; label: string; disabled: boolean; booked: boolean; past: boolean }[] = [];
   for (let t = new Date(start); t.getTime() + durationMin * 60_000 <= end.getTime(); t = new Date(t.getTime() + SLOT_STEP_MIN * 60_000)) {
     const slotEnd = new Date(t.getTime() + durationMin * 60_000);
-    const overlaps = taken.some((a) => t < a.end && slotEnd > a.start);
+    const booked = taken.some((a) => t < a.end && slotEnd > a.start);
     const past = t < now;
     slots.push({
       iso: t.toISOString(),
       label: `${String(t.getHours()).padStart(2, "0")}:${String(t.getMinutes()).padStart(2, "0")}`,
-      disabled: overlaps || past,
+      disabled: booked || past,
+      booked,
+      past,
     });
   }
   return slots;
@@ -314,14 +316,18 @@ function AgendarPage() {
                 <button
                   key={s.iso}
                   disabled={s.disabled}
-                  onClick={() => setSlotIso(s.iso)}
+                  aria-label={s.booked ? `${s.label} — Ocupado` : s.past ? `${s.label} — Indisponível` : s.label}
+                  title={s.booked ? "Ocupado" : s.past ? "Indisponível" : undefined}
+                  onClick={() => !s.disabled && setSlotIso(s.iso)}
                   className={cn(
-                    "rounded-md border px-2 py-2 text-sm transition",
+                    "flex flex-col items-center justify-center rounded-md border px-2 py-2 text-sm transition",
                     slotIso === s.iso ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:border-primary/60",
-                    s.disabled && "pointer-events-none opacity-30 line-through",
+                    s.disabled && "pointer-events-none cursor-not-allowed opacity-40",
+                    s.booked && "line-through",
                   )}
                 >
-                  {s.label}
+                  <span>{s.label}</span>
+                  {s.booked && <span className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Ocupado</span>}
                 </button>
               ))}
             </div>
