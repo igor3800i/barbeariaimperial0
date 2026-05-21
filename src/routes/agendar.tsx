@@ -92,7 +92,7 @@ function AgendarPage() {
   const isAuthenticated = !!localClient;
 
   const [serviceId, setServiceId] = useState<string | undefined>(search.service);
-  const [barberId, setBarberId] = useState<string | undefined>(search.barber);
+  
   const [dateKey, setDateKey] = useState<string | undefined>();
   const [slotIso, setSlotIso] = useState<string | undefined>();
 
