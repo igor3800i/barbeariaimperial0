@@ -267,7 +267,7 @@ function AgendarPage() {
               <button
                 key={b.id}
                 onClick={() => {
-                  setBarberId(b.id);
+                  navigate({ to: "/agendar", search: (prev) => ({ ...prev, barber: b.id }) });
                   setSlotIso(undefined);
                 }}
                 className={cn(
