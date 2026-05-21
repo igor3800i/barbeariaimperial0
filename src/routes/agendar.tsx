@@ -122,11 +122,9 @@ function AgendarPage() {
     },
   });
 
-  useEffect(() => {
-    if (!barberId && barbers && barbers.length === 1) {
-      setBarberId(barbers[0].id);
-    }
-  }, [barbers, barberId]);
+  const resolvedBarberId = search.barber ?? (barbers && barbers.length > 0 ? barbers[0].id : undefined);
+  const resolvedBarber = barbers?.find((b) => b.id === resolvedBarberId);
+
 
   const { data: ratings } = useQuery({
     queryKey: ["barber-ratings"],
