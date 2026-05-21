@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
@@ -86,6 +86,12 @@ function LoginPage() {
             {submitting ? "Aguarde..." : "Entrar"}
           </button>
         </form>
+        <p className="mt-4 text-center text-sm text-muted-foreground">
+          Não tem conta?{" "}
+          <Link to="/cadastro" className="font-semibold text-primary hover:underline">
+            Criar conta
+          </Link>
+        </p>
       </div>
     </div>
   );
