@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -92,7 +92,7 @@ function AgendarPage() {
   const isAuthenticated = !!localClient;
 
   const [serviceId, setServiceId] = useState<string | undefined>(search.service);
-  const [barberId, setBarberId] = useState<string | undefined>(search.barber);
+  
   const [dateKey, setDateKey] = useState<string | undefined>();
   const [slotIso, setSlotIso] = useState<string | undefined>();
 
@@ -122,11 +122,9 @@ function AgendarPage() {
     },
   });
 
-  useEffect(() => {
-    if (!barberId && barbers && barbers.length === 1) {
-      setBarberId(barbers[0].id);
-    }
-  }, [barbers, barberId]);
+  const resolvedBarberId = search.barber ?? (barbers && barbers.length > 0 ? barbers[0].id : undefined);
+  const resolvedBarber = barbers?.find((b) => b.id === resolvedBarberId);
+
 
   const { data: ratings } = useQuery({
     queryKey: ["barber-ratings"],
@@ -145,28 +143,28 @@ function AgendarPage() {
   });
 
   const { data: workingHours } = useQuery({
-    queryKey: ["working-hours", barberId],
-    enabled: !!barberId,
+    queryKey: ["working-hours", resolvedBarberId],
+    enabled: !!resolvedBarberId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("working_hours")
         .select("day_of_week, start_time, end_time, is_day_off")
-        .eq("barber_id", barberId!);
+        .eq("barber_id", resolvedBarberId!);
       if (error) throw error;
       return data as WH[];
     },
   });
 
   const { data: dayAppointments } = useQuery({
-    queryKey: ["day-appointments", barberId, dateKey],
-    enabled: !!barberId && !!dateKey,
+    queryKey: ["day-appointments", resolvedBarberId, dateKey],
+    enabled: !!resolvedBarberId && !!dateKey,
     queryFn: async () => {
       const start = `${dateKey}T00:00:00`;
       const end = `${dateKey}T23:59:59`;
       const { data, error } = await supabase
         .from("appointments")
         .select("scheduled_at, ends_at, status")
-        .eq("barber_id", barberId!)
+        .eq("barber_id", resolvedBarberId!)
         .gte("scheduled_at", start)
         .lte("scheduled_at", end)
         .neq("status", "cancelled");
@@ -177,11 +175,6 @@ function AgendarPage() {
 
   const dates = useMemo(() => buildDateRange(60), []);
   const selectedService = services?.find((s) => s.id === serviceId);
-  const selectedBarber = barbers?.find((b) => b.id === barberId);
-
-  // Auto-pick barbeiro único
-  const resolvedBarberId = barberId ?? (barbers?.length === 1 ? barbers[0].id : undefined);
-  const resolvedBarber = barbers?.find((b) => b.id === resolvedBarberId);
 
   const slots = useMemo(() => {
     if (!dateKey || !selectedService || !workingHours) return [];
@@ -274,7 +267,7 @@ function AgendarPage() {
               <button
                 key={b.id}
                 onClick={() => {
-                  setBarberId(b.id);
+                  navigate({ to: "/agendar", search: (prev: { service?: string; barber?: string }) => ({ ...prev, barber: b.id }) });
                   setSlotIso(undefined);
                 }}
                 className={cn(
