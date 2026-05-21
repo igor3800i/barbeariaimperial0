@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -80,14 +80,19 @@ function AgendarPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
 
-  // Auth via localStorage — leitura direta e síncrona
-  const localClient = useMemo<LocalClient | null>(() => {
-    try {
-      const raw = localStorage.getItem("imperial.client");
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return null;
-    }
+  const [localClient, setLocalClient] = useState<LocalClient | null>(null);
+  useEffect(() => {
+    const read = () => {
+      try {
+        const raw = localStorage.getItem("imperial.client");
+        setLocalClient(raw ? JSON.parse(raw) : null);
+      } catch {
+        setLocalClient(null);
+      }
+    };
+    read();
+    window.addEventListener("storage", read);
+    return () => window.removeEventListener("storage", read);
   }, []);
   const isAuthenticated = !!localClient;
 
@@ -308,7 +313,7 @@ function AgendarPage() {
       )}
 
       {/* STEP 3 — Dia */}
-      {resolvedBarberId && (
+      {serviceId && resolvedBarberId && (
         <Step n={(barbers ?? []).length > 1 ? 3 : 2} title="ESCOLHA O DIA" icon={<Calendar className="h-4 w-4" />}>
           <div className="relative">
             <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-background to-transparent" />
@@ -350,7 +355,7 @@ function AgendarPage() {
       )}
 
       {/* STEP 4 — Horário */}
-      {dateKey && (
+      {serviceId && dateKey && (
         <Step n={(barbers ?? []).length > 1 ? 4 : 3} title="ESCOLHA O HORÁRIO" icon={<Clock className="h-4 w-4" />}>
           {slots.length === 0 ? (
             <p className="text-sm text-muted-foreground">Nenhum horário disponível neste dia.</p>
