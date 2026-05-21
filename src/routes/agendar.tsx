@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -121,6 +121,12 @@ function AgendarPage() {
       return data as Barber[];
     },
   });
+
+  useEffect(() => {
+    if (!barberId && barbers && barbers.length === 1) {
+      setBarberId(barbers[0].id);
+    }
+  }, [barbers, barberId]);
 
   const { data: ratings } = useQuery({
     queryKey: ["barber-ratings"],
