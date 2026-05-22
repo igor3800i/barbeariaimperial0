@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import {
   Outlet,
   Link,
@@ -95,6 +96,26 @@ function RootShell({ children }: { children: React.ReactNode }) {
       </body>
     </html>
   );
+}
+
+type LocalClient = { clientName?: string; clientPhone?: string } | null;
+
+function useLocalClient() {
+  const [localClient, setLocalClient] = useState<LocalClient>(null);
+  useEffect(() => {
+    const read = () => {
+      try {
+        const raw = localStorage.getItem("imperial.client");
+        setLocalClient(raw ? JSON.parse(raw) : null);
+      } catch {
+        setLocalClient(null);
+      }
+    };
+    read();
+    window.addEventListener("storage", read);
+    return () => window.removeEventListener("storage", read);
+  }, []);
+  return [localClient, setLocalClient] as const;
 }
 
 function Header() {
