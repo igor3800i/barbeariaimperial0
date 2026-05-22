@@ -35,6 +35,7 @@ function LoginPage() {
         JSON.stringify({ clientName: trimmed, clientPhone: phone }),
       );
       window.dispatchEvent(new Event("storage"));
+      window.dispatchEvent(new Event("imperial:client-change"));
       toast.success(`Bem-vindo, ${trimmed.split(" ")[0]}!`);
       navigate({ to: "/agendar" });
     } finally {

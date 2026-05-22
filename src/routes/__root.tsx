@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore, useCallback } from "react";
 import {
   Outlet,
   Link,
@@ -100,28 +100,63 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 type LocalClient = { clientName?: string; clientPhone?: string } | null;
 
+const LOCAL_CLIENT_KEY = "imperial.client";
+const LOCAL_CLIENT_EVENT = "imperial:client-change";
+
+function readLocalClient(): LocalClient {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(LOCAL_CLIENT_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+let cachedSnapshot: LocalClient = null;
+let cachedRaw: string | null = null;
+
+function getSnapshot(): LocalClient {
+  if (typeof window === "undefined") return null;
+  const raw = window.localStorage.getItem(LOCAL_CLIENT_KEY);
+  if (raw !== cachedRaw) {
+    cachedRaw = raw;
+    try {
+      cachedSnapshot = raw ? JSON.parse(raw) : null;
+    } catch {
+      cachedSnapshot = null;
+    }
+  }
+  return cachedSnapshot;
+}
+
+function getServerSnapshot(): LocalClient {
+  return null;
+}
+
+function subscribe(callback: () => void) {
+  window.addEventListener("storage", callback);
+  window.addEventListener(LOCAL_CLIENT_EVENT, callback);
+  return () => {
+    window.removeEventListener("storage", callback);
+    window.removeEventListener(LOCAL_CLIENT_EVENT, callback);
+  };
+}
+
 function useLocalClient() {
-  const [localClient, setLocalClient] = useState<LocalClient>(null);
-  useEffect(() => {
-    const read = () => {
-      try {
-        const raw = localStorage.getItem("imperial.client");
-        setLocalClient(raw ? JSON.parse(raw) : null);
-      } catch {
-        setLocalClient(null);
-      }
-    };
-    read();
-    window.addEventListener("storage", read);
-    return () => window.removeEventListener("storage", read);
+  const localClient = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const clearLocalClient = useCallback(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.removeItem(LOCAL_CLIENT_KEY);
+    window.dispatchEvent(new Event(LOCAL_CLIENT_EVENT));
   }, []);
-  return [localClient, setLocalClient] as const;
+  return [localClient, clearLocalClient] as const;
 }
 
 function Header() {
   const linkClass = "text-sm font-medium text-muted-foreground hover:text-primary transition-colors";
   const { isAuthenticated, profile, signOut } = useAuth();
-  const [localClient, setLocalClient] = useLocalClient();
+  const [localClient, clearLocalClient] = useLocalClient();
   const loggedIn = isAuthenticated || !!localClient;
   const displayName =
     profile?.full_name?.split(" ")[0] ??
@@ -129,11 +164,7 @@ function Header() {
     "Conta";
   const handleSignOut = async () => {
     if (isAuthenticated) await signOut();
-    if (localClient) {
-      localStorage.removeItem("imperial.client");
-      setLocalClient(null);
-      window.dispatchEvent(new Event("storage"));
-    }
+    if (localClient) clearLocalClient();
   };
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">

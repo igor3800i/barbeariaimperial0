@@ -42,6 +42,7 @@ function CadastroPage() {
       JSON.stringify({ clientName: fullName.trim(), clientPhone: phone }),
     );
     window.dispatchEvent(new Event("storage"));
+    window.dispatchEvent(new Event("imperial:client-change"));
     toast.success(`Conta criada! Bem-vindo, ${fullName.trim().split(" ")[0]}!`);
     navigate({ to: "/agendar" });
   };
