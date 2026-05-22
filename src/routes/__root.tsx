@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import {
   Outlet,
   Link,
@@ -97,9 +98,43 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+type LocalClient = { clientName?: string; clientPhone?: string } | null;
+
+function useLocalClient() {
+  const [localClient, setLocalClient] = useState<LocalClient>(null);
+  useEffect(() => {
+    const read = () => {
+      try {
+        const raw = localStorage.getItem("imperial.client");
+        setLocalClient(raw ? JSON.parse(raw) : null);
+      } catch {
+        setLocalClient(null);
+      }
+    };
+    read();
+    window.addEventListener("storage", read);
+    return () => window.removeEventListener("storage", read);
+  }, []);
+  return [localClient, setLocalClient] as const;
+}
+
 function Header() {
   const linkClass = "text-sm font-medium text-muted-foreground hover:text-primary transition-colors";
   const { isAuthenticated, profile, signOut } = useAuth();
+  const [localClient, setLocalClient] = useLocalClient();
+  const loggedIn = isAuthenticated || !!localClient;
+  const displayName =
+    profile?.full_name?.split(" ")[0] ??
+    localClient?.clientName?.split(" ")[0] ??
+    "Conta";
+  const handleSignOut = async () => {
+    if (isAuthenticated) await signOut();
+    if (localClient) {
+      localStorage.removeItem("imperial.client");
+      setLocalClient(null);
+      window.dispatchEvent(new Event("storage"));
+    }
+  };
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
@@ -114,18 +149,18 @@ function Header() {
           <Link to="/contato" className={linkClass} activeProps={{ className: "text-sm font-medium text-primary" }}>Contato</Link>
         </nav>
         <div className="flex items-center gap-2">
-          {isAuthenticated ? (
+          {loggedIn ? (
             <>
               <Link
                 to="/minha-conta"
                 className="hidden items-center gap-1.5 rounded-md border border-border px-3 py-2 text-xs font-semibold text-foreground hover:bg-muted sm:inline-flex"
-                title={profile?.full_name ?? "Minha conta"}
+                title={profile?.full_name ?? localClient?.clientName ?? "Minha conta"}
               >
                 <UserIcon className="h-4 w-4" />
-                <span className="max-w-[110px] truncate">{profile?.full_name?.split(" ")[0] ?? "Conta"}</span>
+                <span className="max-w-[110px] truncate">{displayName}</span>
               </Link>
               <button
-                onClick={() => signOut()}
+                onClick={handleSignOut}
                 className="hidden h-9 items-center gap-1 rounded-md border border-border px-2 text-xs text-muted-foreground hover:bg-muted sm:inline-flex"
                 title="Sair"
               >
