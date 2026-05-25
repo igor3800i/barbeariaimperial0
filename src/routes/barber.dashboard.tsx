@@ -23,16 +23,16 @@ function DashboardContent() {
       const todayEnd = new Date(now); todayEnd.setHours(23, 59, 59, 999);
       const weekStart = new Date(todayStart); weekStart.setDate(weekStart.getDate() - 7);
 
-      console.log("[Dashboard Query] Starting...");
+      console.log("Dashboard Query Starting...");
       const { data, error } = await supabase
         .from("appointments")
         .select("id, scheduled_at, ends_at, status, price_charged, client_id, services(name)")
         .gte("scheduled_at", weekStart.toISOString())
         .order("scheduled_at", { ascending: true });
 
-      console.log("[Dashboard Query] Error:", error);
-      console.log("[Dashboard Query] Data length:", data?.length ?? 0);
-      console.log("[Dashboard Query] Raw data:", data);
+      console.log("Dashboard Query Error:", error);
+      console.log("Dashboard Query Data length:", data?.length ?? 0);
+      console.log("Dashboard Query Raw data:", data);
 
       if (error) throw error;
 
