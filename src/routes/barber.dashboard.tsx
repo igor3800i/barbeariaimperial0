@@ -7,16 +7,12 @@ import { formatBRL } from "@/lib/format";
 
 export const Route = createFileRoute("/barber/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — Barbearia Imperial" }] }),
-  component: DashboardPage,
-});
-
-function DashboardPage() {
-  return (
+  component: () => (
     <BarberShell title="Dashboard">
       <DashboardContent />
     </BarberShell>
-  );
-}
+  ),
+});
 
 function DashboardContent() {
   const { data: stats, isLoading, error } = useQuery({
@@ -68,7 +64,6 @@ function DashboardContent() {
         throw err;
       }
     },
-    retry: 2,
   });
 
   if (error) {
