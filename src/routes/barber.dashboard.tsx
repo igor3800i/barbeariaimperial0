@@ -16,10 +16,10 @@ export const Route = createFileRoute("/barber/dashboard")({
 });
 
 function DashboardContent() {
-  const { data: myBarber } = useMyBarber();
+  const { data: myBarber, isLoading: barberLoading } = useMyBarber();
   const barberId = myBarber?.id;
 
-  const { data: stats, isLoading } = useQuery({
+  const { data: stats, isLoading, error } = useQuery({
     queryKey: ["barber-dashboard", barberId ?? "all"],
     queryFn: async () => {
       const now = new Date();
@@ -27,17 +27,31 @@ function DashboardContent() {
       const todayEnd = new Date(now); todayEnd.setHours(23, 59, 59, 999);
       const weekStart = new Date(todayStart); weekStart.setDate(weekStart.getDate() - 7);
 
+      console.log("[Dashboard] barberId:", barberId);
+      console.log("[Dashboard] weekStart:", weekStart.toISOString());
+
       let q = supabase
         .from("appointments")
         .select("id, scheduled_at, ends_at, status, price_charged, client_id, services(name)")
         .gte("scheduled_at", weekStart.toISOString())
         .order("scheduled_at", { ascending: true });
 
-      if (barberId) q = q.eq("barber_id", barberId);
+      if (barberId) {
+        console.log("[Dashboard] Filtering by barber_id:", barberId);
+        q = q.eq("barber_id", barberId);
+      } else {
+        console.log("[Dashboard] No barberId available, fetching all appointments");
+      }
 
       const { data, error } = await q;
 
-      if (error) throw error;
+      console.log("[Dashboard] Query error:", error);
+      console.log("[Dashboard] Query result count:", data?.length ?? 0);
+
+      if (error) {
+        console.error("[Dashboard] Full error:", error);
+        throw error;
+      }
 
       const today = (data ?? []).filter((a) => {
         const d = new Date(a.scheduled_at);
@@ -62,6 +76,25 @@ function DashboardContent() {
 
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
+          <strong>Erro na query:</strong> {(error as Error).message}
+          <br />
+          <small>Abra F12 (Console) para mais detalhes.</small>
+        </div>
+      )}
+      
+      {barberLoading && (
+        <div className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
+          Carregando seu perfil de barbeiro...
+        </div>
+      )}
+
+      {!barberLoading && !barberId && (
+        <div className="rounded-lg border border-yellow-500/50 bg-yellow-500/10 p-4 text-sm text-yellow-700">
+          <strong>Aviso:</strong> Seu perfil de barbeiro não foi encontrado. Contate o administrador.
+        </div>
+      )}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           icon={<CalendarDays className="h-5 w-5" />}
