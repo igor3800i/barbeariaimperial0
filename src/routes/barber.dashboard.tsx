@@ -15,66 +15,42 @@ export const Route = createFileRoute("/barber/dashboard")({
 });
 
 function DashboardContent() {
-  const { data: stats, isLoading, error } = useQuery({
-    queryKey: ["barber-dashboard"],
+  const { data: stats, isLoading } = useQuery({
+    queryKey: ["barber-dashboard", "all"],
     queryFn: async () => {
       const now = new Date();
-      const todayStart = new Date(now); 
-      todayStart.setHours(0, 0, 0, 0);
-      const todayEnd = new Date(now); 
-      todayEnd.setHours(23, 59, 59, 999);
-      const weekStart = new Date(todayStart); 
-      weekStart.setDate(weekStart.getDate() - 7);
+      const todayStart = new Date(now); todayStart.setHours(0, 0, 0, 0);
+      const todayEnd = new Date(now); todayEnd.setHours(23, 59, 59, 999);
+      const weekStart = new Date(todayStart); weekStart.setDate(weekStart.getDate() - 7);
 
-      try {
-        const { data, error } = await supabase
-          .from("appointments")
-          .select("id, scheduled_at, ends_at, status, price_charged, client_id, barber_id, services(name)")
-          .gte("scheduled_at", weekStart.toISOString())
-          .order("scheduled_at", { ascending: true });
+      const { data, error } = await supabase
+        .from("appointments")
+        .select("id, scheduled_at, ends_at, status, price_charged, client_id, services(name)")
+        .gte("scheduled_at", weekStart.toISOString())
+        .order("scheduled_at", { ascending: true });
 
-        if (error) {
-          console.error("[Dashboard Error]", error);
-          throw error;
-        }
+      if (error) throw error;
 
-        console.log("[Dashboard] Appointments loaded:", data?.length ?? 0);
+      const today = (data ?? []).filter((a) => {
+        const d = new Date(a.scheduled_at);
+        return d >= todayStart && d <= todayEnd && a.status !== "cancelled";
+      });
+      const week = (data ?? []).filter((a) => a.status !== "cancelled");
+      const revenue = week
+        .filter((a) => a.status === "completed")
+        .reduce((sum, a) => sum + Number(a.price_charged ?? 0), 0);
+      const uniqClients = new Set(week.map((a) => a.client_id).filter(Boolean)).size;
+      const next = today.find((a) => new Date(a.scheduled_at) >= now) ?? today[0];
 
-        const today = (data ?? []).filter((a) => {
-          const d = new Date(a.scheduled_at);
-          return d >= todayStart && d <= todayEnd && a.status !== "cancelled";
-        });
-
-        const week = (data ?? []).filter((a) => a.status !== "cancelled");
-        const revenue = week
-          .filter((a) => a.status === "completed")
-          .reduce((sum, a) => sum + Number(a.price_charged ?? 0), 0);
-        const uniqClients = new Set(week.map((a) => a.client_id).filter(Boolean)).size;
-        const next = today.find((a) => new Date(a.scheduled_at) >= now) ?? today[0];
-
-        return {
-          todayCount: today.length,
-          weekCount: week.length,
-          revenueCents: Math.round(revenue * 100),
-          uniqClients,
-          next,
-        };
-      } catch (err) {
-        console.error("[Dashboard Fatal Error]", err);
-        throw err;
-      }
+      return {
+        todayCount: today.length,
+        weekCount: week.length,
+        revenueCents: Math.round(revenue * 100),
+        uniqClients,
+        next,
+      };
     },
   });
-
-  if (error) {
-    return (
-      <div className="rounded-lg border border-destructive bg-destructive/10 p-6 text-center">
-        <p className="text-sm text-destructive"><strong>Erro ao carregar agendamentos</strong></p>
-        <p className="mt-2 text-xs text-destructive/80">{(error as any)?.message || "Erro desconhecido"}</p>
-        <p className="mt-3 text-xs text-muted-foreground">Abra F12 (Console) para mais detalhes</p>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -91,12 +67,12 @@ function DashboardContent() {
         />
         <StatCard
           icon={<DollarSign className="h-5 w-5" />}
-          label="Receita (7d)"
+          label="Receita (7d, concluídos)"
           value={isLoading ? "—" : formatBRL(stats?.revenueCents ?? 0)}
         />
         <StatCard
           icon={<Users className="h-5 w-5" />}
-          label="Clientes (7d)"
+          label="Clientes únicos (7d)"
           value={isLoading ? "—" : String(stats?.uniqClients ?? 0)}
         />
       </div>
