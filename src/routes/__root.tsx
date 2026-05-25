@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useEffect, useState, useSyncExternalStore, useCallback } from "react";
+import { useSyncExternalStore, useCallback } from "react";
 import {
   Outlet,
   Link,
@@ -100,38 +100,13 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 type LocalClient = { clientName?: string; clientPhone?: string } | null;
 
-import { useSyncExternalStore, useCallback } from "react";
+const LOCAL_CLIENT_KEY = "imperial.client";
+const LOCAL_CLIENT_EVENT = "imperial:client-change";
 
-const IMPERIAL_KEY = "imperial.client";
-const IMPERIAL_EVENT = "imperial:localauth";
+let cachedRaw: string | null | undefined = undefined;
+let cachedSnapshot: LocalClient = null;
 
 function getSnapshot(): LocalClient {
-  try {
-    const raw = localStorage.getItem(IMPERIAL_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch { return null; }
-}
-
-function subscribe(cb: () => void) {
-  window.addEventListener("storage", cb);
-  window.addEventListener(IMPERIAL_EVENT, cb);
-  return () => {
-    window.removeEventListener("storage", cb);
-    window.removeEventListener(IMPERIAL_EVENT, cb);
-  };
-}
-
-function useLocalClient() {
-  const localClient = useSyncExternalStore(subscribe, getSnapshot, () => null);
-
-  const setLocalClient = useCallback((value: LocalClient) => {
-    if (value) localStorage.setItem(IMPERIAL_KEY, JSON.stringify(value));
-    else localStorage.removeItem(IMPERIAL_KEY);
-    window.dispatchEvent(new Event(IMPERIAL_EVENT));
-  }, []);
-
-  return [localClient, setLocalClient] as const;
-}
   if (typeof window === "undefined") return null;
   const raw = window.localStorage.getItem(LOCAL_CLIENT_KEY);
   if (raw !== cachedRaw) {
@@ -149,7 +124,7 @@ function getServerSnapshot(): LocalClient {
   return null;
 }
 
-function subscribe(callback: () => void) {
+function subscribeLocalClient(callback: () => void) {
   window.addEventListener("storage", callback);
   window.addEventListener(LOCAL_CLIENT_EVENT, callback);
   return () => {
@@ -159,10 +134,12 @@ function subscribe(callback: () => void) {
 }
 
 function useLocalClient() {
-  const localClient = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const localClient = useSyncExternalStore(subscribeLocalClient, getSnapshot, getServerSnapshot);
   const clearLocalClient = useCallback(() => {
     if (typeof window === "undefined") return;
     window.localStorage.removeItem(LOCAL_CLIENT_KEY);
+    cachedRaw = null;
+    cachedSnapshot = null;
     window.dispatchEvent(new Event(LOCAL_CLIENT_EVENT));
   }, []);
   return [localClient, clearLocalClient] as const;
