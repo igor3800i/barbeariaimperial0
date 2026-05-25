@@ -4,97 +4,85 @@ import { CalendarDays, DollarSign, Users, Clock } from "lucide-react";
 import { BarberShell } from "@/components/barber/barber-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBRL } from "@/lib/format";
-import { useMyBarber } from "@/lib/use-my-barber";
 
 export const Route = createFileRoute("/barber/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — Barbearia Imperial" }] }),
-  component: () => (
+  component: DashboardPage,
+});
+
+function DashboardPage() {
+  return (
     <BarberShell title="Dashboard">
       <DashboardContent />
     </BarberShell>
-  ),
-});
+  );
+}
 
 function DashboardContent() {
-  const { data: myBarber, isLoading: barberLoading } = useMyBarber();
-  const barberId = myBarber?.id;
-
   const { data: stats, isLoading, error } = useQuery({
-    queryKey: ["barber-dashboard", barberId ?? "all"],
+    queryKey: ["barber-dashboard"],
     queryFn: async () => {
       const now = new Date();
-      const todayStart = new Date(now); todayStart.setHours(0, 0, 0, 0);
-      const todayEnd = new Date(now); todayEnd.setHours(23, 59, 59, 999);
-      const weekStart = new Date(todayStart); weekStart.setDate(weekStart.getDate() - 7);
+      const todayStart = new Date(now); 
+      todayStart.setHours(0, 0, 0, 0);
+      const todayEnd = new Date(now); 
+      todayEnd.setHours(23, 59, 59, 999);
+      const weekStart = new Date(todayStart); 
+      weekStart.setDate(weekStart.getDate() - 7);
 
-      console.log("[Dashboard] barberId:", barberId);
-      console.log("[Dashboard] weekStart:", weekStart.toISOString());
+      try {
+        const { data, error } = await supabase
+          .from("appointments")
+          .select("id, scheduled_at, ends_at, status, price_charged, client_id, barber_id, services(name)")
+          .gte("scheduled_at", weekStart.toISOString())
+          .order("scheduled_at", { ascending: true });
 
-      let q = supabase
-        .from("appointments")
-        .select("id, scheduled_at, ends_at, status, price_charged, client_id, services(name)")
-        .gte("scheduled_at", weekStart.toISOString())
-        .order("scheduled_at", { ascending: true });
+        if (error) {
+          console.error("[Dashboard Error]", error);
+          throw error;
+        }
 
-      if (barberId) {
-        console.log("[Dashboard] Filtering by barber_id:", barberId);
-        q = q.eq("barber_id", barberId);
-      } else {
-        console.log("[Dashboard] No barberId available, fetching all appointments");
+        console.log("[Dashboard] Appointments loaded:", data?.length ?? 0);
+
+        const today = (data ?? []).filter((a) => {
+          const d = new Date(a.scheduled_at);
+          return d >= todayStart && d <= todayEnd && a.status !== "cancelled";
+        });
+
+        const week = (data ?? []).filter((a) => a.status !== "cancelled");
+        const revenue = week
+          .filter((a) => a.status === "completed")
+          .reduce((sum, a) => sum + Number(a.price_charged ?? 0), 0);
+        const uniqClients = new Set(week.map((a) => a.client_id).filter(Boolean)).size;
+        const next = today.find((a) => new Date(a.scheduled_at) >= now) ?? today[0];
+
+        return {
+          todayCount: today.length,
+          weekCount: week.length,
+          revenueCents: Math.round(revenue * 100),
+          uniqClients,
+          next,
+        };
+      } catch (err) {
+        console.error("[Dashboard Fatal Error]", err);
+        throw err;
       }
-
-      const { data, error } = await q;
-
-      console.log("[Dashboard] Query error:", error);
-      console.log("[Dashboard] Query result count:", data?.length ?? 0);
-
-      if (error) {
-        console.error("[Dashboard] Full error:", error);
-        throw error;
-      }
-
-      const today = (data ?? []).filter((a) => {
-        const d = new Date(a.scheduled_at);
-        return d >= todayStart && d <= todayEnd && a.status !== "cancelled";
-      });
-      const week = (data ?? []).filter((a) => a.status !== "cancelled");
-      const revenue = week
-        .filter((a) => a.status === "completed")
-        .reduce((sum, a) => sum + Number(a.price_charged ?? 0), 0);
-      const uniqClients = new Set(week.map((a) => a.client_id).filter(Boolean)).size;
-      const next = today.find((a) => new Date(a.scheduled_at) >= now) ?? today[0];
-
-      return {
-        todayCount: today.length,
-        weekCount: week.length,
-        revenueCents: Math.round(revenue * 100),
-        uniqClients,
-        next,
-      };
     },
+    retry: 2,
   });
+
+  if (error) {
+    return (
+      <div className="rounded-lg border border-destructive bg-destructive/10 p-6 text-center">
+        <p className="text-sm text-destructive"><strong>Erro ao carregar agendamentos</strong></p>
+        <p className="mt-2 text-xs text-destructive/80">{(error as any)?.message || "Erro desconhecido"}</p>
+        <p className="mt-3 text-xs text-muted-foreground">Abra F12 (Console) para mais detalhes</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {error && (
-        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
-          <strong>Erro na query:</strong> {(error as Error).message}
-          <br />
-          <small>Abra F12 (Console) para mais detalhes.</small>
-        </div>
-      )}
-      
-      {barberLoading && (
-        <div className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
-          Carregando seu perfil de barbeiro...
-        </div>
-      )}
-
-      {!barberLoading && !barberId && (
-        <div className="rounded-lg border border-yellow-500/50 bg-yellow-500/10 p-4 text-sm text-yellow-700">
-          <strong>Aviso:</strong> Seu perfil de barbeiro não foi encontrado. Contate o administrador.
-        </div>
-      )}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           icon={<CalendarDays className="h-5 w-5" />}
@@ -108,12 +96,12 @@ function DashboardContent() {
         />
         <StatCard
           icon={<DollarSign className="h-5 w-5" />}
-          label="Receita (7d, concluídos)"
+          label="Receita (7d)"
           value={isLoading ? "—" : formatBRL(stats?.revenueCents ?? 0)}
         />
         <StatCard
           icon={<Users className="h-5 w-5" />}
-          label="Clientes únicos (7d)"
+          label="Clientes (7d)"
           value={isLoading ? "—" : String(stats?.uniqClients ?? 0)}
         />
       </div>
