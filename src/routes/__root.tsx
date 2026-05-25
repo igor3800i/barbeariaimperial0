@@ -100,23 +100,38 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 type LocalClient = { clientName?: string; clientPhone?: string } | null;
 
-const LOCAL_CLIENT_KEY = "imperial.client";
-const LOCAL_CLIENT_EVENT = "imperial:client-change";
+import { useSyncExternalStore, useCallback } from "react";
 
-function readLocalClient(): LocalClient {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = window.localStorage.getItem(LOCAL_CLIENT_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
-let cachedSnapshot: LocalClient = null;
-let cachedRaw: string | null = null;
+const IMPERIAL_KEY = "imperial.client";
+const IMPERIAL_EVENT = "imperial:localauth";
 
 function getSnapshot(): LocalClient {
+  try {
+    const raw = localStorage.getItem(IMPERIAL_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function subscribe(cb: () => void) {
+  window.addEventListener("storage", cb);
+  window.addEventListener(IMPERIAL_EVENT, cb);
+  return () => {
+    window.removeEventListener("storage", cb);
+    window.removeEventListener(IMPERIAL_EVENT, cb);
+  };
+}
+
+function useLocalClient() {
+  const localClient = useSyncExternalStore(subscribe, getSnapshot, () => null);
+
+  const setLocalClient = useCallback((value: LocalClient) => {
+    if (value) localStorage.setItem(IMPERIAL_KEY, JSON.stringify(value));
+    else localStorage.removeItem(IMPERIAL_KEY);
+    window.dispatchEvent(new Event(IMPERIAL_EVENT));
+  }, []);
+
+  return [localClient, setLocalClient] as const;
+}
   if (typeof window === "undefined") return null;
   const raw = window.localStorage.getItem(LOCAL_CLIENT_KEY);
   if (raw !== cachedRaw) {
