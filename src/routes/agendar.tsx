@@ -206,6 +206,12 @@ function AgendarPage() {
 
       const start = new Date(slotIso);
       const end = new Date(start.getTime() + selectedService.duration_min * 60_000);
+
+      // Salva nome e telefone nas notas quando o cliente não tem perfil no Supabase
+      const guestNote = !clientId
+        ? `cliente:${localClient.clientName}|tel:${localClient.clientPhone}`
+        : null;
+
       const { error } = await supabase.from("appointments").insert({
         client_id: clientId,
         barber_id: resolvedBarber.id,
@@ -214,6 +220,7 @@ function AgendarPage() {
         ends_at: end.toISOString(),
         price_charged: selectedService.price,
         status: "confirmed",
+        notes: guestNote,
       });
       if (error) throw error;
     },

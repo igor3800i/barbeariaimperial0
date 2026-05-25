@@ -4,6 +4,7 @@ import { CalendarDays, DollarSign, Users, Clock } from "lucide-react";
 import { BarberShell } from "@/components/barber/barber-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBRL } from "@/lib/format";
+import { useMyBarber } from "@/lib/use-my-barber";
 
 export const Route = createFileRoute("/barber/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — Barbearia Imperial" }] }),
@@ -15,19 +16,26 @@ export const Route = createFileRoute("/barber/dashboard")({
 });
 
 function DashboardContent() {
+  const { data: myBarber } = useMyBarber();
+  const barberId = myBarber?.id;
+
   const { data: stats, isLoading } = useQuery({
-    queryKey: ["barber-dashboard", "all"],
+    queryKey: ["barber-dashboard", barberId ?? "all"],
     queryFn: async () => {
       const now = new Date();
       const todayStart = new Date(now); todayStart.setHours(0, 0, 0, 0);
       const todayEnd = new Date(now); todayEnd.setHours(23, 59, 59, 999);
       const weekStart = new Date(todayStart); weekStart.setDate(weekStart.getDate() - 7);
 
-      const { data, error } = await supabase
+      let q = supabase
         .from("appointments")
         .select("id, scheduled_at, ends_at, status, price_charged, client_id, services(name)")
         .gte("scheduled_at", weekStart.toISOString())
         .order("scheduled_at", { ascending: true });
+
+      if (barberId) q = q.eq("barber_id", barberId);
+
+      const { data, error } = await q;
 
       if (error) throw error;
 

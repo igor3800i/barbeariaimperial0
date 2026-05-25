@@ -114,10 +114,13 @@ function AppointmentsContent() {
           {filtered.map((a) => (
             <li key={a.id} className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex-1">
-                <p className="text-base font-semibold text-foreground">{a.services?.name ?? "Serviço"} — {a.profiles?.full_name ?? "Cliente"}</p>
+                <p className="text-base font-semibold text-foreground">
+                  {a.services?.name ?? "Serviço"} —{" "}
+                  {a.profiles?.full_name ?? parseGuestName(a.notes) ?? "Cliente"}
+                </p>
                 <p className="text-sm text-muted-foreground">
                   {new Date(a.scheduled_at).toLocaleString("pt-BR", { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
-                  {a.profiles?.phone && <> · {a.profiles.phone}</>}
+                  {(a.profiles?.phone ?? parseGuestPhone(a.notes)) && <> · {a.profiles?.phone ?? parseGuestPhone(a.notes)}</>}
                   {a.price_charged != null && <> · {formatBRL(Math.round(Number(a.price_charged) * 100))}</>}
                 </p>
               </div>
@@ -147,8 +150,20 @@ function AppointmentsContent() {
   );
 }
 
-const labels: Record<Filter, string> = {
-  upcoming: "Próximos",
+// Extrai nome/telefone do campo notes quando o cliente não tem perfil Supabase
+function parseGuestName(notes: string | null | undefined): string | null {
+  if (!notes) return null;
+  const match = notes.match(/cliente:([^|]+)/);
+  return match ? match[1] : null;
+}
+
+function parseGuestPhone(notes: string | null | undefined): string | null {
+  if (!notes) return null;
+  const match = notes.match(/tel:([^|]+)/);
+  return match ? match[1] : null;
+}
+
+const labels: Record<Filter, string> = {  upcoming: "Próximos",
   today: "Hoje",
   all: "Todos",
   completed: "Concluídos",
