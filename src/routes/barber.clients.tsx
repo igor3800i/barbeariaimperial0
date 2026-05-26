@@ -17,12 +17,20 @@ export const Route = createFileRoute("/barber/clients")({
 });
 
 type Row = {
-  client_id: string;
+  client_id: string | null;
   scheduled_at: string;
   status: string;
   price_charged: number | null;
+  notes: string | null;
   profiles: { full_name: string; phone: string | null; email: string } | null;
 };
+
+function parseGuest(notes: string | null): { name: string | null; phone: string | null } {
+  if (!notes) return { name: null, phone: null };
+  const name = notes.match(/cliente:([^|]+)/)?.[1]?.trim() ?? null;
+  const phone = notes.match(/tel:([^|]+)/)?.[1]?.trim() ?? null;
+  return { name, phone };
+}
 
 function ClientsContent() {
   const { data: myBarber } = useMyBarber();
@@ -34,7 +42,7 @@ function ClientsContent() {
     queryFn: async () => {
       let req = supabase
         .from("appointments")
-        .select("client_id, scheduled_at, status, price_charged, profiles!appointments_client_id_fkey(full_name, phone, email)")
+        .select("client_id, scheduled_at, status, price_charged, notes, profiles!appointments_client_id_fkey(full_name, phone, email)")
         .order("scheduled_at", { ascending: false });
       if (barberId) req = req.eq("barber_id", barberId);
       const { data, error } = await req;
@@ -44,16 +52,34 @@ function ClientsContent() {
   });
 
   const clients = useMemo(() => {
-    const map = new Map<string, { id: string; full_name: string; phone: string | null; email: string; visits: number; spent: number; lastAt: string | null }>();
+    const map = new Map<string, { id: string; full_name: string; phone: string | null; email: string; visits: number; spent: number; lastAt: string | null; guest: boolean }>();
     for (const a of data ?? []) {
-      if (!a.client_id || !a.profiles) continue;
-      const ex = map.get(a.client_id) ?? { id: a.client_id, full_name: a.profiles.full_name, phone: a.profiles.phone, email: a.profiles.email, visits: 0, spent: 0, lastAt: null };
+      let key: string;
+      let full_name: string;
+      let phone: string | null;
+      let email: string;
+      let guest = false;
+      if (a.client_id && a.profiles) {
+        key = a.client_id;
+        full_name = a.profiles.full_name;
+        phone = a.profiles.phone;
+        email = a.profiles.email;
+      } else {
+        const g = parseGuest(a.notes);
+        if (!g.name && !g.phone) continue;
+        key = `guest:${(g.phone ?? g.name ?? "").toLowerCase()}`;
+        full_name = g.name ?? "Cliente";
+        phone = g.phone;
+        email = "";
+        guest = true;
+      }
+      const ex = map.get(key) ?? { id: key, full_name, phone, email, visits: 0, spent: 0, lastAt: null, guest };
       ex.visits += 1;
       if (a.status === "completed") ex.spent += Number(a.price_charged ?? 0);
       if (!ex.lastAt || a.scheduled_at > ex.lastAt) ex.lastAt = a.scheduled_at;
-      map.set(a.client_id, ex);
+      map.set(key, ex);
     }
-    const arr = Array.from(map.values());
+    const arr = Array.from(map.values()).sort((a, b) => (b.lastAt ?? "").localeCompare(a.lastAt ?? ""));
     const needle = q.trim().toLowerCase();
     return needle ? arr.filter((c) => c.full_name.toLowerCase().includes(needle) || c.email.toLowerCase().includes(needle) || (c.phone ?? "").includes(needle)) : arr;
   }, [data, q]);
