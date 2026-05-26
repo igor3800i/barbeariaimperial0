@@ -27,6 +27,7 @@ type Row = {
   status: string;
   price_charged: number | null;
   client_id: string | null;
+  notes: string | null;
   services: { name: string } | null;
   profiles: { full_name: string; phone: string | null } | null;
 };
