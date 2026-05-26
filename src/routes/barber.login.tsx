@@ -1,8 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth-context";
 
-const BARBER_USER = "imperial2026";
-const BARBER_PASS = "102030";
+// Username "imperial2026" maps to the internal email used in Supabase Auth.
+const USERNAME_TO_EMAIL: Record<string, string> = {
+  imperial2026: "imperial2026@barberimperial.internal",
+};
 
 export const Route = createFileRoute("/barber/login")({
   head: () => ({ meta: [{ title: "Acesso — Barbearia Imperial" }] }),
@@ -11,29 +15,42 @@ export const Route = createFileRoute("/barber/login")({
 
 function BarberLogin() {
   const navigate = useNavigate();
+  const { isAuthenticated, loading } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && localStorage.getItem("barberAuthenticated") === "true") {
+    if (!loading && isAuthenticated && typeof window !== "undefined" && localStorage.getItem("barberAuthenticated") === "true") {
       navigate({ to: "/barber/dashboard" });
     }
-  }, [navigate]);
+  }, [loading, isAuthenticated, navigate]);
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
     setSubmitting(true);
-    if (username.trim() === BARBER_USER && password === BARBER_PASS) {
-      localStorage.setItem("barberAuthenticated", "true");
-      localStorage.setItem("barberId", "410042ea-a1e6-452e-9b27-dfbc5e88694a");
-      navigate({ to: "/barber/dashboard" });
+    const raw = username.trim().toLowerCase();
+    const email = raw.includes("@") ? raw : USERNAME_TO_EMAIL[raw] ?? `${raw}@barberimperial.internal`;
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    if (signInError) {
+      setSubmitting(false);
+      setError("Usuário ou senha inválidos.");
       return;
     }
-    setSubmitting(false);
-    setError("Usuário ou senha inválidos.");
+    localStorage.setItem("barberAuthenticated", "true");
+    // Resolve the barber row linked to this auth user
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: barber } = await supabase
+        .from("barbers")
+        .select("id")
+        .eq("profile_id", user.id)
+        .maybeSingle();
+      if (barber?.id) localStorage.setItem("barberId", barber.id);
+    }
+    navigate({ to: "/barber/dashboard" });
   };
 
   return (
