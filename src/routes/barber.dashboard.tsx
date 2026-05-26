@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { CalendarDays, DollarSign, Users, Clock } from "lucide-react";
+import { CalendarDays, DollarSign, Users, Clock, RefreshCw } from "lucide-react";
 import { BarberShell } from "@/components/barber/barber-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBRL } from "@/lib/format";
@@ -17,9 +17,11 @@ export const Route = createFileRoute("/barber/dashboard")({
 
 function DashboardContent() {
   const [barberId, setBarberId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const id = localStorage.getItem("barberId");
+    console.log("barberId from localStorage:", id);
     setBarberId(id);
   }, []);
 
@@ -27,6 +29,7 @@ function DashboardContent() {
     queryKey: ["barber-dashboard", barberId],
     enabled: !!barberId,
     queryFn: async () => {
+      console.log("Fetching appointments for barber:", barberId);
       const now = new Date();
       const todayStart = new Date(now); todayStart.setHours(0, 0, 0, 0);
       const todayEnd = new Date(now); todayEnd.setHours(23, 59, 59, 999);
@@ -38,6 +41,8 @@ function DashboardContent() {
         .eq("barber_id", barberId!)
         .gte("scheduled_at", weekStart.toISOString())
         .order("scheduled_at", { ascending: true });
+
+      console.log("Query result:", { data, error });
 
       if (error) throw error;
 
@@ -65,6 +70,15 @@ function DashboardContent() {
   return (
     <div className="space-y-6">
       {!barberId && <p className="text-sm text-muted-foreground">Carregando dados...</p>}
+      {barberId && (
+        <button
+          onClick={() => queryClient.invalidateQueries({ queryKey: ["barber-dashboard", barberId] })}
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+        >
+          <RefreshCw className="h-4 w-4" />
+          Recarregar dados
+        </button>
+      )}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           icon={<CalendarDays className="h-5 w-5" />}
