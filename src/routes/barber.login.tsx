@@ -1,9 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/lib/auth-context";
 
-const BARBER_EMAIL = "imperial2026@barberiaimperialinternal";
+const BARBER_USER = "imperial2026";
 const BARBER_PASS = "102030";
 
 export const Route = createFileRoute("/barber/login")({
@@ -13,47 +11,29 @@ export const Route = createFileRoute("/barber/login")({
 
 function BarberLogin() {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (user) {
+    if (typeof window !== "undefined" && localStorage.getItem("barberAuthenticated") === "true") {
       navigate({ to: "/barber/dashboard" });
     }
-  }, [user, navigate]);
+  }, [navigate]);
 
-  const submit = async (e: FormEvent) => {
+  const submit = (e: FormEvent) => {
     e.preventDefault();
     setError("");
     setSubmitting(true);
-    
-    try {
-      if (username.trim() !== "imperial2026" || password !== "102030") {
-        setError("Usuário ou senha inválidos.");
-        setSubmitting(false);
-        return;
-      }
-
-      const { error: authError } = await supabase.auth.signInWithPassword({
-        email: BARBER_EMAIL,
-        password: BARBER_PASS,
-      });
-
-      if (authError) {
-        setError(authError.message || "Erro ao fazer login");
-        setSubmitting(false);
-        return;
-      }
-
+    if (username.trim() === BARBER_USER && password === BARBER_PASS) {
+      localStorage.setItem("barberAuthenticated", "true");
       localStorage.setItem("barberId", "410042ea-a1e6-452e-9b27-dfbc5e88694a");
       navigate({ to: "/barber/dashboard" });
-    } catch (err) {
-      setError("Erro ao fazer login. Tente novamente.");
-      setSubmitting(false);
+      return;
     }
+    setSubmitting(false);
+    setError("Usuário ou senha inválidos.");
   };
 
   return (
