@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { CalendarDays, DollarSign, Users, Clock } from "lucide-react";
 import { BarberShell } from "@/components/barber/barber-shell";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,8 +16,16 @@ export const Route = createFileRoute("/barber/dashboard")({
 });
 
 function DashboardContent() {
+  const [barberId, setBarberId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const id = localStorage.getItem("barberId");
+    setBarberId(id);
+  }, []);
+
   const { data: stats, isLoading } = useQuery({
-    queryKey: ["barber-dashboard", "all"],
+    queryKey: ["barber-dashboard", barberId],
+    enabled: !!barberId,
     queryFn: async () => {
       const now = new Date();
       const todayStart = new Date(now); todayStart.setHours(0, 0, 0, 0);
@@ -26,6 +35,7 @@ function DashboardContent() {
       const { data, error } = await supabase
         .from("appointments")
         .select("id, scheduled_at, ends_at, status, price_charged, client_id, services(name)")
+        .eq("barber_id", barberId!)
         .gte("scheduled_at", weekStart.toISOString())
         .order("scheduled_at", { ascending: true });
 
@@ -54,6 +64,7 @@ function DashboardContent() {
 
   return (
     <div className="space-y-6">
+      {!barberId && <p className="text-sm text-muted-foreground">Carregando dados...</p>}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           icon={<CalendarDays className="h-5 w-5" />}

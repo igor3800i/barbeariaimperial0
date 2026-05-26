@@ -28,6 +28,7 @@ function BarberLogin() {
     setSubmitting(true);
     if (username.trim() === BARBER_USER && password === BARBER_PASS) {
       localStorage.setItem("barberAuthenticated", "true");
+      localStorage.setItem("barberId", "410042ea-a1e6-452e-9b27-dfbc5e88694a");
       navigate({ to: "/barber/dashboard" });
       return;
     }
