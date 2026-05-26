@@ -43,7 +43,7 @@ function AppointmentsContent() {
     queryFn: async () => {
       let q = supabase
         .from("appointments")
-        .select("id, scheduled_at, ends_at, status, price_charged, client_id, services(name), profiles!appointments_client_id_fkey(full_name, phone)")
+        .select("id, scheduled_at, ends_at, status, price_charged, client_id, notes, services(name), profiles!appointments_client_id_fkey(full_name, phone)")
         .order("scheduled_at", { ascending: true });
       if (barberId) q = q.eq("barber_id", barberId);
       const { data, error } = await q;
