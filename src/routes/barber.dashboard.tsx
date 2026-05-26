@@ -21,15 +21,13 @@ function DashboardContent() {
 
   useEffect(() => {
     const id = localStorage.getItem("barberId");
-    console.log("barberId from localStorage:", id);
     setBarberId(id);
   }, []);
 
-  const { data: stats, isLoading } = useQuery({
+  const { data: stats, isLoading, error } = useQuery({
     queryKey: ["barber-dashboard", barberId],
     enabled: !!barberId,
     queryFn: async () => {
-      console.log("Fetching appointments for barber:", barberId);
       const now = new Date();
       const todayStart = new Date(now); todayStart.setHours(0, 0, 0, 0);
       const todayEnd = new Date(now); todayEnd.setHours(23, 59, 59, 999);
@@ -41,8 +39,6 @@ function DashboardContent() {
         .eq("barber_id", barberId!)
         .gte("scheduled_at", weekStart.toISOString())
         .order("scheduled_at", { ascending: true });
-
-      console.log("Query result:", { data, error });
 
       if (error) throw error;
 
@@ -70,15 +66,24 @@ function DashboardContent() {
   return (
     <div className="space-y-6">
       {!barberId && <p className="text-sm text-muted-foreground">Carregando dados...</p>}
+      
       {barberId && (
-        <button
-          onClick={() => queryClient.invalidateQueries({ queryKey: ["barber-dashboard", barberId] })}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
-        >
-          <RefreshCw className="h-4 w-4" />
-          Recarregar dados
-        </button>
+        <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-card p-3">
+          <div>
+            <p className="text-xs text-muted-foreground">BarberID: <code className="text-xs">{barberId.slice(0, 12)}...</code></p>
+            {isLoading && <p className="text-xs text-blue-500">⏳ Carregando...</p>}
+            {error && <p className="text-xs text-destructive">❌ Erro: {(error as any)?.message}</p>}
+          </div>
+          <button
+            onClick={() => queryClient.invalidateQueries({ queryKey: ["barber-dashboard", barberId] })}
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Recarregar
+          </button>
+        </div>
       )}
+      
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           icon={<CalendarDays className="h-5 w-5" />}
