@@ -25,11 +25,12 @@ type Row = {
   profiles: { full_name: string; phone: string | null; email: string } | null;
 };
 
-function parseGuest(notes: string | null): { name: string | null; phone: string | null } {
-  if (!notes) return { name: null, phone: null };
+function parseGuest(notes: string | null): { name: string | null; phone: string | null; email: string | null } {
+  if (!notes) return { name: null, phone: null, email: null };
   const name = notes.match(/cliente:([^|]+)/)?.[1]?.trim() ?? null;
   const phone = notes.match(/tel:([^|]+)/)?.[1]?.trim() ?? null;
-  return { name, phone };
+  const email = notes.match(/email:([^|]+)/)?.[1]?.trim() ?? null;
+  return { name, phone, email };
 }
 
 function ClientsContent() {
@@ -70,7 +71,7 @@ function ClientsContent() {
         key = `guest:${(g.phone ?? g.name ?? "").toLowerCase()}`;
         full_name = g.name ?? "Cliente";
         phone = g.phone;
-        email = "";
+        email = g.email || "";
         guest = true;
       }
       const ex = map.get(key) ?? { id: key, full_name, phone, email, visits: 0, spent: 0, lastAt: null, guest };

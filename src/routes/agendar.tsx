@@ -22,7 +22,7 @@ export const Route = createFileRoute("/agendar")({
 type Service = { id: string; name: string; price: number; duration_min: number; description: string | null };
 type Barber = { id: string; display_name: string; bio: string | null; photo_url: string | null };
 type WH = { day_of_week: number; start_time: string; end_time: string; is_day_off: boolean };
-type LocalClient = { clientName: string; clientPhone: string };
+type LocalClient = { clientName: string; clientPhone: string; clientEmail?: string };
 
 const DAY_LABELS = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"];
 const MONTH_LABELS = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
@@ -207,9 +207,9 @@ function AgendarPage() {
       const start = new Date(slotIso);
       const end = new Date(start.getTime() + selectedService.duration_min * 60_000);
 
-      // Salva nome e telefone nas notas quando o cliente não tem perfil no Supabase
+      // Salva nome, email e telefone nas notas quando o cliente não tem perfil no Supabase
       const guestNote = !clientId
-        ? `cliente:${localClient.clientName}|tel:${localClient.clientPhone}`
+        ? `cliente:${localClient.clientName}|email:${localClient.clientEmail || ""}|tel:${localClient.clientPhone}`
         : null;
 
       const { error } = await supabase.from("appointments").insert({

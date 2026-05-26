@@ -39,7 +39,7 @@ function CadastroPage() {
     if (error) return toast.error(error.message);
     localStorage.setItem(
       "imperial.client",
-      JSON.stringify({ clientName: fullName.trim(), clientPhone: phone }),
+      JSON.stringify({ clientName: fullName.trim(), clientPhone: phone, clientEmail: email }),
     );
     window.dispatchEvent(new Event("storage"));
     window.dispatchEvent(new Event("imperial:client-change"));
