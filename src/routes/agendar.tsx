@@ -80,19 +80,25 @@ function AgendarPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
 
-  const [localClient, setLocalClient] = useState<LocalClient | null>(null);
+  const readLocalClient = (): LocalClient | null => {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = window.localStorage.getItem("imperial.client");
+      return raw ? (JSON.parse(raw) as LocalClient) : null;
+    } catch {
+      return null;
+    }
+  };
+  const [localClient, setLocalClient] = useState<LocalClient | null>(readLocalClient);
   useEffect(() => {
-    const read = () => {
-      try {
-        const raw = localStorage.getItem("imperial.client");
-        setLocalClient(raw ? JSON.parse(raw) : null);
-      } catch {
-        setLocalClient(null);
-      }
-    };
+    const read = () => setLocalClient(readLocalClient());
     read();
     window.addEventListener("storage", read);
-    return () => window.removeEventListener("storage", read);
+    window.addEventListener("imperial:client-change", read);
+    return () => {
+      window.removeEventListener("storage", read);
+      window.removeEventListener("imperial:client-change", read);
+    };
   }, []);
   const isAuthenticated = !!localClient;
 
@@ -252,13 +258,15 @@ function AgendarPage() {
     onSuccess: () => {
       toast.success("Agendamento confirmado!");
       qc.invalidateQueries({ queryKey: ["day-appointments"] });
+      qc.invalidateQueries({ queryKey: ["barber-financial"] });
+      qc.invalidateQueries({ queryKey: ["barber-appointments"] });
       setSlotIso(undefined);
       setTimeout(() => navigate({ to: "/" }), 1200);
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const canBook = !!serviceId && !!resolvedBarberId && !!slotIso && isAuthenticated;
+  
 
   return (
     <section className="mx-auto max-w-4xl px-4 py-10">
@@ -473,33 +481,30 @@ function AgendarPage() {
             </li>
           </ul>
 
-          {!isAuthenticated ? (
-            <div className="mt-5 rounded-md border border-border bg-card p-4 text-sm">
-              <p className="text-muted-foreground">Para confirmar, faça login ou crie sua conta.</p>
-              <div className="mt-3 flex gap-2">
-                <Link
-                  to="/login"
-                  className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground"
-                >
-                  Entrar
-                </Link>
-                <Link
-                  to="/cadastro"
-                  className="inline-flex h-10 items-center justify-center rounded-md border border-border px-4 text-sm font-semibold text-foreground"
-                >
-                  Criar conta
-                </Link>
-              </div>
-            </div>
-          ) : (
-            <button
-              disabled={!canBook || bookMut.isPending}
-              onClick={() => bookMut.mutate()}
-              className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-md bg-primary px-6 text-sm font-semibold text-primary-foreground disabled:opacity-60"
-            >
-              {bookMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-              Confirmar agendamento
-            </button>
+          <button
+            type="button"
+            disabled={bookMut.isPending}
+            onClick={() => {
+              if (!isAuthenticated) {
+                toast.info("Faça login ou crie sua conta para confirmar.");
+                navigate({ to: "/login" });
+                return;
+              }
+              bookMut.mutate();
+            }}
+            className="mt-5 inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-primary px-6 text-sm font-semibold text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {bookMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+            Confirmar agendamento
+          </button>
+
+          {!isAuthenticated && (
+            <p className="mt-3 text-center text-xs text-muted-foreground">
+              Você será direcionado para{" "}
+              <Link to="/login" className="font-semibold text-primary hover:underline">entrar</Link>
+              {" "}ou{" "}
+              <Link to="/cadastro" className="font-semibold text-primary hover:underline">criar conta</Link>.
+            </p>
           )}
         </div>
       )}
