@@ -1,9 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Calendar, Clock, Scissors, User as UserIcon, Loader2, CheckCircle2, Star } from "lucide-react";
+import { Calendar, Clock, Scissors, User as UserIcon, Loader2, CheckCircle2, Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBRL } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -100,6 +100,31 @@ function AgendarPage() {
   
   const [dateKey, setDateKey] = useState<string | undefined>();
   const [slotIso, setSlotIso] = useState<string | undefined>();
+
+  const datesScrollRef = useRef<HTMLDivElement | null>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollState = useCallback(() => {
+    const el = datesScrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  }, []);
+
+  const scrollDates = useCallback((dir: 1 | -1) => {
+    const el = datesScrollRef.current;
+    if (!el) return;
+    const card = el.querySelector("button");
+    const step = (card?.clientWidth ?? 64) + 8;
+    el.scrollBy({ left: dir * step * 6, behavior: "smooth" });
+  }, []);
+
+  useEffect(() => {
+    updateScrollState();
+    window.addEventListener("resize", updateScrollState);
+    return () => window.removeEventListener("resize", updateScrollState);
+  }, [updateScrollState, serviceId]);
 
   const { data: services } = useQuery({
     queryKey: ["services-active"],
@@ -325,7 +350,34 @@ function AgendarPage() {
           <div className="relative">
             <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-background to-transparent" />
             <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-background to-transparent" />
-            <div className="flex gap-2 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none]">
+            {canScrollLeft && (
+              <button
+                type="button"
+                aria-label="Dias anteriores"
+                onClick={() => scrollDates(-1)}
+                className="absolute left-0 top-1/2 z-20 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card/95 text-foreground shadow-md backdrop-blur transition hover:border-primary/60 hover:text-primary"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+            )}
+            {canScrollRight && (
+              <button
+                type="button"
+                aria-label="Próximos dias"
+                onClick={() => scrollDates(1)}
+                className="absolute right-0 top-1/2 z-20 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card/95 text-foreground shadow-md backdrop-blur transition hover:border-primary/60 hover:text-primary"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            )}
+            <div
+              ref={(el) => {
+                datesScrollRef.current = el;
+                if (el) requestAnimationFrame(updateScrollState);
+              }}
+              onScroll={updateScrollState}
+              className="flex gap-2 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none]"
+            >
               {dates.map((d) => {
                 const key = toLocalDateKey(d);
                 const dow = d.getDay();
