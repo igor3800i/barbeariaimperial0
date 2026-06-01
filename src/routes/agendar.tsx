@@ -120,6 +120,12 @@ function AgendarPage() {
     el.scrollBy({ left: dir * step * 6, behavior: "smooth" });
   }, []);
 
+  useEffect(() => {
+    updateScrollState();
+    window.addEventListener("resize", updateScrollState);
+    return () => window.removeEventListener("resize", updateScrollState);
+  }, [updateScrollState, serviceId, resolvedBarberId]);
+
   const { data: services } = useQuery({
     queryKey: ["services-active"],
     queryFn: async () => {
