@@ -80,19 +80,25 @@ function AgendarPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
 
-  const [localClient, setLocalClient] = useState<LocalClient | null>(null);
+  const readLocalClient = (): LocalClient | null => {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = window.localStorage.getItem("imperial.client");
+      return raw ? (JSON.parse(raw) as LocalClient) : null;
+    } catch {
+      return null;
+    }
+  };
+  const [localClient, setLocalClient] = useState<LocalClient | null>(readLocalClient);
   useEffect(() => {
-    const read = () => {
-      try {
-        const raw = localStorage.getItem("imperial.client");
-        setLocalClient(raw ? JSON.parse(raw) : null);
-      } catch {
-        setLocalClient(null);
-      }
-    };
+    const read = () => setLocalClient(readLocalClient());
     read();
     window.addEventListener("storage", read);
-    return () => window.removeEventListener("storage", read);
+    window.addEventListener("imperial:client-change", read);
+    return () => {
+      window.removeEventListener("storage", read);
+      window.removeEventListener("imperial:client-change", read);
+    };
   }, []);
   const isAuthenticated = !!localClient;
 
