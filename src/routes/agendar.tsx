@@ -101,6 +101,25 @@ function AgendarPage() {
   const [dateKey, setDateKey] = useState<string | undefined>();
   const [slotIso, setSlotIso] = useState<string | undefined>();
 
+  const datesScrollRef = useRef<HTMLDivElement | null>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollState = useCallback(() => {
+    const el = datesScrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  }, []);
+
+  const scrollDates = useCallback((dir: 1 | -1) => {
+    const el = datesScrollRef.current;
+    if (!el) return;
+    const card = el.querySelector("button");
+    const step = (card?.clientWidth ?? 64) + 8;
+    el.scrollBy({ left: dir * step * 6, behavior: "smooth" });
+  }, []);
+
   const { data: services } = useQuery({
     queryKey: ["services-active"],
     queryFn: async () => {
