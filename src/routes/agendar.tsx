@@ -264,7 +264,7 @@ function AgendarPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const canBook = !!serviceId && !!resolvedBarberId && !!slotIso && isAuthenticated;
+  
 
   return (
     <section className="mx-auto max-w-4xl px-4 py-10">
