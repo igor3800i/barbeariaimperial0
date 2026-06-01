@@ -479,33 +479,30 @@ function AgendarPage() {
             </li>
           </ul>
 
-          {!isAuthenticated ? (
-            <div className="mt-5 rounded-md border border-border bg-card p-4 text-sm">
-              <p className="text-muted-foreground">Para confirmar, faça login ou crie sua conta.</p>
-              <div className="mt-3 flex gap-2">
-                <Link
-                  to="/login"
-                  className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground"
-                >
-                  Entrar
-                </Link>
-                <Link
-                  to="/cadastro"
-                  className="inline-flex h-10 items-center justify-center rounded-md border border-border px-4 text-sm font-semibold text-foreground"
-                >
-                  Criar conta
-                </Link>
-              </div>
-            </div>
-          ) : (
-            <button
-              disabled={!canBook || bookMut.isPending}
-              onClick={() => bookMut.mutate()}
-              className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-md bg-primary px-6 text-sm font-semibold text-primary-foreground disabled:opacity-60"
-            >
-              {bookMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-              Confirmar agendamento
-            </button>
+          <button
+            type="button"
+            disabled={bookMut.isPending}
+            onClick={() => {
+              if (!isAuthenticated) {
+                toast.info("Faça login ou crie sua conta para confirmar.");
+                navigate({ to: "/login" });
+                return;
+              }
+              bookMut.mutate();
+            }}
+            className="mt-5 inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-primary px-6 text-sm font-semibold text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {bookMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+            Confirmar agendamento
+          </button>
+
+          {!isAuthenticated && (
+            <p className="mt-3 text-center text-xs text-muted-foreground">
+              Você será direcionado para{" "}
+              <Link to="/login" className="font-semibold text-primary hover:underline">entrar</Link>
+              {" "}ou{" "}
+              <Link to="/cadastro" className="font-semibold text-primary hover:underline">criar conta</Link>.
+            </p>
           )}
         </div>
       )}
