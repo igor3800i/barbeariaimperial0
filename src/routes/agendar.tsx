@@ -258,6 +258,8 @@ function AgendarPage() {
     onSuccess: () => {
       toast.success("Agendamento confirmado!");
       qc.invalidateQueries({ queryKey: ["day-appointments"] });
+      qc.invalidateQueries({ queryKey: ["barber-financial"] });
+      qc.invalidateQueries({ queryKey: ["barber-appointments"] });
       setSlotIso(undefined);
       setTimeout(() => navigate({ to: "/" }), 1200);
     },
