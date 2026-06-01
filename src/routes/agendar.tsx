@@ -344,7 +344,34 @@ function AgendarPage() {
           <div className="relative">
             <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-background to-transparent" />
             <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-background to-transparent" />
-            <div className="flex gap-2 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none]">
+            {canScrollLeft && (
+              <button
+                type="button"
+                aria-label="Dias anteriores"
+                onClick={() => scrollDates(-1)}
+                className="absolute left-0 top-1/2 z-20 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card/95 text-foreground shadow-md backdrop-blur transition hover:border-primary/60 hover:text-primary"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+            )}
+            {canScrollRight && (
+              <button
+                type="button"
+                aria-label="Próximos dias"
+                onClick={() => scrollDates(1)}
+                className="absolute right-0 top-1/2 z-20 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card/95 text-foreground shadow-md backdrop-blur transition hover:border-primary/60 hover:text-primary"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            )}
+            <div
+              ref={(el) => {
+                datesScrollRef.current = el;
+                if (el) requestAnimationFrame(updateScrollState);
+              }}
+              onScroll={updateScrollState}
+              className="flex gap-2 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none]"
+            >
               {dates.map((d) => {
                 const key = toLocalDateKey(d);
                 const dow = d.getDay();
