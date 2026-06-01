@@ -124,7 +124,7 @@ function AgendarPage() {
     updateScrollState();
     window.addEventListener("resize", updateScrollState);
     return () => window.removeEventListener("resize", updateScrollState);
-  }, [updateScrollState, serviceId, resolvedBarberId]);
+  }, [updateScrollState, serviceId]);
 
   const { data: services } = useQuery({
     queryKey: ["services-active"],
