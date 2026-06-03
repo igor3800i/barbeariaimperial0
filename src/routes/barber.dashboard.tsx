@@ -42,25 +42,57 @@ function DashboardContent() {
       const todayEnd = new Date(now); todayEnd.setHours(23, 59, 59, 999);
       const weekStart = new Date(todayStart); weekStart.setDate(weekStart.getDate() - 7);
 
+      const weekStart = new Date(todayStart); weekStart.setDate(weekStart.getDate() - 7);
+      const monthStart = new Date(todayStart); monthStart.setDate(monthStart.getDate() - 29);
+
       const { data, error } = await supabase
         .from("appointments")
         .select("id, scheduled_at, ends_at, status, price_charged, client_id, services(name)")
         .eq("barber_id", barberId!)
-        .gte("scheduled_at", weekStart.toISOString())
+        .gte("scheduled_at", monthStart.toISOString())
         .order("scheduled_at", { ascending: true });
 
       if (error) throw error;
 
-      const today = (data ?? []).filter((a) => {
+      const all = data ?? [];
+      const today = all.filter((a) => {
         const d = new Date(a.scheduled_at);
         return d >= todayStart && d <= todayEnd && a.status !== "cancelled";
       });
-      const week = (data ?? []).filter((a) => a.status !== "cancelled");
+      const week = all.filter((a) => {
+        const d = new Date(a.scheduled_at);
+        return d >= weekStart && a.status !== "cancelled";
+      });
       const revenue = week
         .filter((a) => a.status === "completed")
         .reduce((sum, a) => sum + Number(a.price_charged ?? 0), 0);
       const uniqClients = new Set(week.map((a) => a.client_id).filter(Boolean)).size;
       const next = today.find((a) => new Date(a.scheduled_at) >= now) ?? today[0];
+
+      // Daily series for the last 30 days
+      const series: { date: string; label: string; agendamentos: number; receita: number }[] = [];
+      for (let i = 0; i < 30; i++) {
+        const d = new Date(monthStart);
+        d.setDate(d.getDate() + i);
+        const key = d.toISOString().slice(0, 10);
+        series.push({
+          date: key,
+          label: d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }),
+          agendamentos: 0,
+          receita: 0,
+        });
+      }
+      const byDate = new Map(series.map((s) => [s.date, s]));
+      for (const a of all) {
+        if (a.status === "cancelled") continue;
+        const key = new Date(a.scheduled_at).toISOString().slice(0, 10);
+        const slot = byDate.get(key);
+        if (!slot) continue;
+        slot.agendamentos += 1;
+        if (a.status === "completed" || a.status === "confirmed") {
+          slot.receita += Number(a.price_charged ?? 0);
+        }
+      }
 
       return {
         todayCount: today.length,
@@ -68,9 +100,12 @@ function DashboardContent() {
         revenueCents: Math.round(revenue * 100),
         uniqClients,
         next,
+        series,
       };
     },
   });
+
+  const series = stats?.series ?? [];
 
   return (
     <div className="space-y-6">
