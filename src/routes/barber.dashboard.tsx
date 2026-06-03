@@ -41,8 +41,6 @@ function DashboardContent() {
       const todayStart = new Date(now); todayStart.setHours(0, 0, 0, 0);
       const todayEnd = new Date(now); todayEnd.setHours(23, 59, 59, 999);
       const weekStart = new Date(todayStart); weekStart.setDate(weekStart.getDate() - 7);
-
-      const weekStart = new Date(todayStart); weekStart.setDate(weekStart.getDate() - 7);
       const monthStart = new Date(todayStart); monthStart.setDate(monthStart.getDate() - 29);
 
       const { data, error } = await supabase
