@@ -1,10 +1,9 @@
 @import "tailwindcss" source(none);
-@source "../src";
 @import "tw-animate-css";
+@import url("https://fonts.googleapis.com/css2?family=Raleway:wght@200;300;400;500;600;700;800&display=swap");
+@source "../src";
 
 @custom-variant dark (&:is(.dark *));
-
-@import url("https://fonts.googleapis.com/css2?family=Raleway:wght@200;300;400;500;600;700;800&display=swap");
 /* Sreda é uma fonte comercial e não está disponível em CDNs públicos.
    Se você possui a licença, hospede os arquivos em /public/fonts/ e descomente:
    @font-face {
