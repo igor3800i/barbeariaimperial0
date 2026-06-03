@@ -195,15 +195,17 @@ function AgendarPage() {
     queryKey: ["day-appointments", resolvedBarberId, dateKey],
     enabled: !!resolvedBarberId && !!dateKey,
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_busy_slots", {
-        _barber_id: resolvedBarberId!,
-        _day: dateKey!,
-      });
+      const start = `${dateKey}T00:00:00`;
+      const end = `${dateKey}T23:59:59`;
+      const { data, error } = await supabase
+        .from("appointments")
+        .select("scheduled_at, ends_at, status")
+        .eq("barber_id", resolvedBarberId!)
+        .gte("scheduled_at", start)
+        .lte("scheduled_at", end)
+        .neq("status", "cancelled");
       if (error) throw error;
-      return (data ?? []).map((a: { scheduled_at: string; ends_at: string }) => ({
-        start: new Date(a.scheduled_at),
-        end: new Date(a.ends_at),
-      }));
+      return data.map((a) => ({ start: new Date(a.scheduled_at), end: new Date(a.ends_at) }));
     },
   });
 
