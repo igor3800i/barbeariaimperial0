@@ -5,6 +5,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -241,13 +242,15 @@ function Footer() {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isBarberArea = pathname.startsWith("/barber");
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <div className="flex min-h-screen flex-col">
-          <Header />
+          {!isBarberArea && <Header />}
           <main className="flex-1"><Outlet /></main>
-          <Footer />
+          {!isBarberArea && <Footer />}
         </div>
         <Toaster richColors position="top-center" />
       </AuthProvider>
