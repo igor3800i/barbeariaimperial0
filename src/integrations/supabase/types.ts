@@ -478,6 +478,13 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_busy_slots: {
+        Args: { _barber_id: string; _day: string }
+        Returns: {
+          ends_at: string
+          scheduled_at: string
+        }[]
+      }
       get_my_role: { Args: never; Returns: string }
       is_staff: { Args: never; Returns: boolean }
       move_to_dlq: {
