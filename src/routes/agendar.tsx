@@ -197,7 +197,7 @@ function AgendarPage() {
     queryFn: async () => {
       const { data, error } = await supabase.rpc("get_busy_slots", {
         _barber_id: resolvedBarberId!,
-        _day: dateKey,
+        _day: dateKey!,
       });
       if (error) throw error;
       return (data ?? []).map((a: { scheduled_at: string; ends_at: string }) => ({
