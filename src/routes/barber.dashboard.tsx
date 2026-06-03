@@ -150,6 +150,93 @@ function DashboardContent() {
       </div>
 
       <section className="rounded-xl border border-border bg-card p-5">
+        <div className="mb-4 flex items-center justify-between gap-2">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 text-primary" />
+            Movimentação (últimos 30 dias)
+          </h2>
+          <span className="text-xs text-muted-foreground">Agendamentos x Receita</span>
+        </div>
+        <div className="h-72 w-full">
+          {isLoading ? (
+            <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+              Carregando gráfico…
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={series} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="gradAg" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.5} />
+                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="gradRev" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#10b981" stopOpacity={0.4} />
+                    <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                <XAxis
+                  dataKey="label"
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  interval={Math.max(0, Math.floor(series.length / 8) - 1)}
+                />
+                <YAxis
+                  yAxisId="left"
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  allowDecimals={false}
+                />
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(v: number) => `R$${v}`}
+                />
+                <Tooltip
+                  contentStyle={{
+                    background: "hsl(var(--card))",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: 8,
+                    fontSize: 12,
+                  }}
+                  formatter={(value: number, name: string) =>
+                    name === "receita"
+                      ? [formatBRL(Math.round(value * 100)), "Receita"]
+                      : [value, "Agendamentos"]
+                  }
+                />
+                <Area
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="agendamentos"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={2}
+                  fill="url(#gradAg)"
+                />
+                <Area
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey="receita"
+                  stroke="#10b981"
+                  strokeWidth={2}
+                  fill="url(#gradRev)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+      </section>
+
+      <section className="rounded-xl border border-border bg-card p-5">
         <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-foreground">
           Próximo atendimento
         </h2>
