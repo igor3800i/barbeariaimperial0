@@ -1,7 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { CalendarDays, DollarSign, Users, Clock, RefreshCw } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { CalendarDays, DollarSign, Users, Clock, RefreshCw, TrendingUp } from "lucide-react";
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+} from "recharts";
 import { BarberShell } from "@/components/barber/barber-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBRL } from "@/lib/format";
